@@ -12,17 +12,19 @@ redisDao.prototype.init = function(cb) {
 	this.db = redis.createClient(RDS_PORT,RDS_HOST,RDS_OPTS)
 	var self = this
 	self.db.on("ready",function(res) {
-		self.db.del("onlineNums")
-		self.db.get("acc:lastid",function(err,data) {
-			if(data === null){
-		        console.log("\033[33m[INFO] DataBase check - acc:lastid\033[0m");
-		        self.db.set("acc:lastid",10000);
-		        self.db.set("user:lastid",101200);
-		        self.db.set("guild:lastid",1000);
-		        self.db.set("merge:lastid",10000);
-    		}
+		self.db.select("3",function() {
+			self.db.del("onlineNums")
+			self.db.get("acc:lastid",function(err,data) {
+				if(data === null){
+			        console.log("\033[33m[INFO] DataBase check - acc:lastid\033[0m");
+			        self.db.set("acc:lastid",10000);
+			        self.db.set("user:lastid",101200);
+			        self.db.set("guild:lastid",1000);
+			        self.db.set("merge:lastid",10000);
+	    		}
+			})
+			cb()
 		})
-		cb()
 	})
 }
 redisDao.prototype.multi = function(list,cb) {
