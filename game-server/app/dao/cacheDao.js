@@ -92,8 +92,8 @@ local.create = function(self,info) {
 }
 local.login = function(self,info) {
 	var curTime = Date.now()
-	var sql = 'update user_list SET lv=?,vip=?,lateLogin=?,ce=?,userName=? where uid=?'
-	var args = [info.level,info.vip,curTime,info.CE,info.name,info.uid];
+	var sql = 'update user_list SET lv=?,vip=?,lateLogin=?,ce=?,userName=?,ip=? where uid=?'
+	var args = [info.level,info.vip,curTime,info.CE,info.name,info.ip,info.uid];
 	self.mysqlDao.db.query(sql,args, function(err, res) {
 		if (err) {
 			console.error('login! ' + err.stack);
@@ -114,7 +114,8 @@ local.leave = function(self,info) {
 		accId : info.accId,
 		userName : info.name,
 		loginTime : info.beginTime,
-		playTime : info.time
+		playTime : info.time,
+		ip : info.ip
 	}
 	self.mysqlDao.db.query(sql2,info2, function(err, res) {
 		if (err) {
