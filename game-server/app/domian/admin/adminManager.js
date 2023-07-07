@@ -46,6 +46,20 @@ var model = function() {
 		self.app.rpc.area.areaRemote.updateRebate.toServer("*",null)
 		res.send("SUCCESS")
 	}
+	gets["/test"] = function(req,res) {
+	    var ipAddress;
+	    var forwardedIpsStr = req.headers['X-Forwarded-For'];//判断是否有反向代理头信息
+	    console.log("forwardedIpsStr",forwardedIpsStr)
+	    if (forwardedIpsStr) {//如果有，则将头信息中第一个地址拿出，该地址就是真实的客户端IP；
+	        var forwardedIps = forwardedIpsStr.split(',');
+	        ipAddress = forwardedIps[0];
+	    }
+	    if (!ipAddress) {//如果没有直接获取IP；
+	        ipAddress = req.connection.remoteAddress;
+	    }
+	    console.log(ipAddress)
+	    res.send("SUCCESS")
+	}
 	//踢出玩家
 	local.kickUser = function(uid) {
 		self.playerDao.getPlayerAreaId(uid,function(flag,data) {
