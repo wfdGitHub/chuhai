@@ -64,6 +64,7 @@ connectorRemote.prototype.kickUser = function(uid,cb) {
 }
 //登陆
 connectorRemote.prototype.playerLogin = function(unionid,cb) {
+	console.log("playerLogin",unionid)
 	var self = this
   	var msg = {unionid:unionid}
   	var areaId = 1

@@ -57,7 +57,6 @@ var model = function() {
 	    if (!ipAddress) {//如果没有直接获取IP；
 	        ipAddress = req.connection.remoteAddress;
 	    }
-	    console.log(self.app.rpc.area.areaRemote)
 	    res.send("SUCCESS")
 	}
 	gets["/playerLogin"] = function(req,res) {
