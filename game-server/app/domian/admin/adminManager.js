@@ -64,6 +64,7 @@ var model = function() {
 		var args = url.parse(req.url, true).query
 		var unionid = args.unionid
 		var serverId = self.areaDeploy.getServer(1)
+		console.log(serverId,unionid)
 		self.app.rpc.connector.connectorRemote.playerLogin.toServer(serverId,unionid,function(flag,data) {
 			res.send({flag:flag,data:data})
 		})
