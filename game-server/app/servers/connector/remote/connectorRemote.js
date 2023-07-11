@@ -144,6 +144,9 @@ module.exports = function(app) {
 		},{
 			name : "sdkPay",
 			ref : "sdkPay"
+		},{
+			name : "playerDao",
+			ref : "playerDao"
 		}]
 	})
 }
