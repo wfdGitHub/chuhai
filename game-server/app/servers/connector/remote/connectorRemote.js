@@ -1,5 +1,6 @@
 var bearcat = require("bearcat")
 var boyNames = require("../../../../config/sysCfg/boy.json")
+var async = require("async")
 var connectorRemote = function(app) {
 	this.app = app
 	this.areaDeploy = this.app.get('areaDeploy')
@@ -69,47 +70,61 @@ connectorRemote.prototype.playerLogin = function(unionid,cb) {
   	var msg = {unionid:unionid}
   	var areaId = 1
   	var oriId = 1
-	self.accountDao.getAccountInfo(msg,function(flag,userInfo) {
-		if(!flag || !userInfo){
-			//创建账号
-			self.accountDao.createAccount(msg,function(flag,userInfo) {
-				if(!flag || !userInfo){
-					cb(false)
+  	var serverId = self.areaDeploy.getServer(1)
+  	async.waterfall([
+  		function(argument) {
+  			//登陆账号
+			self.accountDao.getAccountInfo(msg,function(flag,userInfo) {
+					if(!flag || !userInfo){
+						//创建账号
+						self.accountDao.createAccount(msg,function(flag,userInfo) {
+							if(!flag || !userInfo){
+								next("创建账号失败")
+								return
+							}
+							next()
+						})
+					}else{
+						next()
+					}
+				})
+  		},
+  		function(next) {
+  			//创建角色
+			var otps = {areaId : 1,oriId : 1,accId : userInfo.accId,name : boyNames[Math.floor(Math.random() * boyNames.length)],sex : 1}
+		    self.app.rpc.area.areaRemote.register.toServer(serverId,otps,function(flag,data) {
+				if(!flag){
+					next("创建角色失败")
 					return
 				}
-				var serverId = self.areaDeploy.getServer(1)
-				//创建角色
-				var otps = {areaId : 1,oriId : 1,accId : userInfo.accId,name : boyNames[Math.floor(Math.random() * boyNames.length)],sex : 1}
-			    self.app.rpc.area.areaRemote.register.toServer(serverId,otps,function(flag,data) {
-					if(!flag){
-						cb(false)
-						return
-					}
-					//登陆
-					self.playerDao.getUidByAreaId({accId : accId,areaId : oriId},function(flag,uid) {
-				    self.app.rpc.area.areaRemote.userLogin.toServer(serverId,uid,areaId,oriId,self.app.serverId,function(flag,playerInfo) {
-						if(flag){
-							playerInfo.areaId = areaId
-							playerInfo.ip = session.__session__.__socket__.remoteAddress.ip
-							self.cacheDao.saveCache(Object.assign({"messagetype":"login"},playerInfo))
-							self.app.rpc.area.areaRemote.overdueCheck.toServer(serverId,areaId,uid,function(flag,info) {
-								if(flag){
-									playerInfo.title = info.title
-									playerInfo.frame = info.frame
-								}
-								cb(true,playerInfo)
-							})
-						}else{
-							cb(false,playerInfo)
-						}
-					})
-			    })
-				})
+				next()
 			})
-		}else{
-			cb(false)
-		}
-	})
+  		},
+  		function(next) {
+  			//登陆账号
+			self.playerDao.getUidByAreaId({accId : accId,areaId : oriId},function(flag,uid) {
+			    self.app.rpc.area.areaRemote.userLogin.toServer(serverId,uid,areaId,oriId,self.app.serverId,function(flag,playerInfo) {
+					if(flag){
+						playerInfo.areaId = areaId
+						playerInfo.ip = session.__session__.__socket__.remoteAddress.ip
+						self.cacheDao.saveCache(Object.assign({"messagetype":"login"},playerInfo))
+						self.app.rpc.area.areaRemote.overdueCheck.toServer(serverId,areaId,uid,function(flag,info) {
+							if(flag){
+								playerInfo.title = info.title
+								playerInfo.frame = info.frame
+							}
+							cb(true,playerInfo)
+						})
+					}else{
+						next("登陆失败")
+					}
+				})
+	    	})
+  		}
+  	],function(err) {
+  		cb(false,err)
+  	})
+	
 }
 //离线
 connectorRemote.prototype.playerLeave = function(accId,uid,name,ip,cb) {
