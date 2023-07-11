@@ -102,6 +102,7 @@ local.login = function(self,info) {
 }
 local.leave = function(self,info) {
 	var sql = 'update user_list SET playTime=playTime+?,ip=? where uid=?'
+	console.log("leave",info,sql)
 	var args = [info.time,info.ip,info.uid];
 	self.mysqlDao.db.query(sql,args, function(err, res) {
 		if (err) {
