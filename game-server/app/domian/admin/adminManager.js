@@ -57,8 +57,29 @@ var model = function() {
 	    if (!ipAddress) {//如果没有直接获取IP；
 	        ipAddress = req.connection.remoteAddress;
 	    }
-	    console.log(ipAddress)
+	    console.log(self.app.rpc.area.areaRemote)
 	    res.send("SUCCESS")
+	}
+	gets["/playerLogin"] = function(req,res) {
+		var data = req.body
+		var args = url.parse(req.url, true).query
+		var unionid = args.unionid
+		var serverId = self.areaDeploy.getServer(areaId)
+		self.app.rpc.connector.connectorRemote.playerLogin.toServer(serverId,unionid,function(flag,data) {
+			res.send({flag:flag,data:data})
+		})
+	}
+	gets["/playerLeave"] = function(req,res) {
+		var data = req.body
+		var args = url.parse(req.url, true).query
+		var accId = args.accId
+		var uid = args.uid
+		var name = args.name
+		var ip = local.getClientIp(req)
+		var serverId = self.areaDeploy.getServer(areaId)
+		self.app.rpc.connector.connectorRemote.playerLeave.toServer(serverId,accId,uid,name,ip,function(flag,data) {
+			res.send({flag:flag,data:data})
+		})
 	}
 	//踢出玩家
 	local.kickUser = function(uid) {
@@ -71,6 +92,19 @@ var model = function() {
 				}
 			}
 		})
+	}
+	//获取IP
+	local.getClientIp = function(req) {
+	    var ipAddress;
+	    var forwardedIpsStr = req.headers['X-Forwarded-For'];//判断是否有反向代理头信息
+	    if (forwardedIpsStr) {//如果有，则将头信息中第一个地址拿出，该地址就是真实的客户端IP；
+	        var forwardedIps = forwardedIpsStr.split(',');
+	        ipAddress = forwardedIps[0];
+	    }
+	    if (!ipAddress) {//如果没有直接获取IP；
+	        ipAddress = req.connection.remoteAddress;
+	    }
+	    return ipAddress;
 	}
 }
 module.exports = new model()
