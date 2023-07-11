@@ -125,9 +125,10 @@ connectorRemote.prototype.playerLogin = function(unionid,cb) {
 }
 //离线
 connectorRemote.prototype.playerLeave = function(accId,uid,name,ip,cb) {
+	console.log(accId,uid,name,ip)
 	var beginTime = (15 + Math.floor() * 15)*60000
 	var dt = Date.now() - beginTime
-	var serverId = self.areaDeploy.getServer(1)
+	var serverId = this.areaDeploy.getServer(1)
 	if(accId)
 		this.accountDao.updatePlaytime({accId : accId,beginTime : beginTime})
 	this.cacheDao.saveCache({"messagetype":"leave",time:dt,uid:uid,accId:accId,name:name,beginTime:beginTime,ip:ip})
