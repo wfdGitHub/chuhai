@@ -82,14 +82,14 @@ connectorRemote.prototype.playerLogin = function(unionid,cb) {
 								next("创建账号失败")
 								return
 							}
-							next()
+							next(null,userInfo)
 						})
 					}else{
-						next()
+						next(null,userInfo)
 					}
 				})
   		},
-  		function(next) {
+  		function(userInfo,next) {
   			//创建角色
 			var otps = {areaId : 1,oriId : 1,accId : userInfo.accId,name : boyNames[Math.floor(Math.random() * boyNames.length)],sex : 1}
 		    self.app.rpc.area.areaRemote.register.toServer(serverId,otps,function(flag,data) {
