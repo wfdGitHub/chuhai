@@ -72,7 +72,7 @@ connectorRemote.prototype.playerLogin = function(unionid,cb) {
   	var oriId = 1
   	var serverId = self.areaDeploy.getServer(1)
   	async.waterfall([
-  		function(argument) {
+  		function(next) {
   			//登陆账号
 			self.accountDao.getAccountInfo(msg,function(flag,userInfo) {
 					if(!flag || !userInfo){
