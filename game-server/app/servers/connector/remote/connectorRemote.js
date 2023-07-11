@@ -126,7 +126,7 @@ connectorRemote.prototype.playerLogin = function(unionid,cb) {
 //离线
 connectorRemote.prototype.playerLeave = function(accId,uid,name,ip,cb) {
 	console.log(accId,uid,name,ip)
-	var beginTime = (15 + Math.floor() * 15)*60000
+	var beginTime = (15 + Math.random() * 15)*60000
 	var dt = Date.now() - beginTime
 	var serverId = this.areaDeploy.getServer(1)
 	if(accId)
