@@ -63,9 +63,7 @@ var model = function() {
 		var data = req.body
 		var args = url.parse(req.url, true).query
 		var unionid = args.unionid
-		var serverId = self.areaDeploy.getServer(1)
-		console.log(serverId,unionid)
-		self.app.rpc.connector.connectorRemote.playerLogin.toServer(serverId,unionid,function(flag,data) {
+		self.app.rpc.connector.connectorRemote.playerLogin.toServer("connector-server-1",unionid,function(flag,data) {
 			res.send({flag:flag,data:data})
 		})
 	}
@@ -76,8 +74,7 @@ var model = function() {
 		var uid = args.uid
 		var name = args.name
 		var ip = local.getClientIp(req)
-		var serverId = self.areaDeploy.getServer(1)
-		self.app.rpc.connector.connectorRemote.playerLeave.toServer(serverId,accId,uid,name,ip,function(flag,data) {
+		self.app.rpc.connector.connectorRemote.playerLeave.toServer("connector-server-1",accId,uid,name,ip,function(flag,data) {
 			res.send({flag:flag,data:data})
 		})
 	}
