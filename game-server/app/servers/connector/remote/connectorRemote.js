@@ -71,6 +71,7 @@ connectorRemote.prototype.playerLogin = function(unionid,cb) {
   	var areaId = 1
   	var oriId = 1
   	var serverId = self.areaDeploy.getServer(1)
+  	var accId = ""
   	async.waterfall([
   		function(next) {
   			//登陆账号
@@ -91,7 +92,8 @@ connectorRemote.prototype.playerLogin = function(unionid,cb) {
   		},
   		function(userInfo,next) {
   			//创建角色
-			var otps = {areaId : 1,oriId : 1,accId : userInfo.accId,name : boyNames[Math.floor(Math.random() * boyNames.length)],sex : 1}
+  			accId = userInfo.accId
+			var otps = {areaId : 1,oriId : 1,accId : accId,name : boyNames[Math.floor(Math.random() * boyNames.length)],sex : 1}
 		    self.app.rpc.area.areaRemote.register.toServer(serverId,otps,function(flag,data) {
 				next()
 			})
@@ -102,7 +104,6 @@ connectorRemote.prototype.playerLogin = function(unionid,cb) {
 			    self.app.rpc.area.areaRemote.userLogin.toServer(serverId,uid,areaId,oriId,self.app.serverId,function(flag,playerInfo) {
 					if(flag){
 						playerInfo.areaId = areaId
-						playerInfo.ip = session.__session__.__socket__.remoteAddress.ip
 						self.cacheDao.saveCache(Object.assign({"messagetype":"login"},playerInfo))
 						self.app.rpc.area.areaRemote.overdueCheck.toServer(serverId,areaId,uid,function(flag,info) {
 							if(flag){
