@@ -80,6 +80,8 @@ var model = function() {
 	}
 	//挑战主线
 	gets["/checkpointsSuccess"] = function(req,res) {
+		var data = req.body
+		var args = url.parse(req.url, true).query
 		var uid = args.uid
 		var level = args.level
 		var serverId = self.areaDeploy.getServer(1)
@@ -89,6 +91,8 @@ var model = function() {
 	}
 	//获得随机奖励
 	gets["/gainRandChest"] = function(req,res) {
+		var data = req.body
+		var args = url.parse(req.url, true).query
 		var uid = args.uid
 		var serverId = self.areaDeploy.getServer(1)
 		self.app.rpc.area.areaRemote.gainRandChest.toServer(serverId,uid,function(flag,data) {
@@ -97,6 +101,8 @@ var model = function() {
 	}
 	//主公等级提升
 	gets["/lordLvUp"] = function(req,res) {
+		var data = req.body
+		var args = url.parse(req.url, true).query
 		var uid = args.uid
 		var serverId = self.areaDeploy.getServer(1)
 		self.app.rpc.area.areaRemote.lordLvUp.toServer(serverId,uid,function(flag,data) {
@@ -105,6 +111,8 @@ var model = function() {
 	}
 	//领取快速挂机奖励
 	gets["/getQuickOnhookAward"] = function(req,res) {
+		var data = req.body
+		var args = url.parse(req.url, true).query
 		var uid = args.uid
 		var serverId = self.areaDeploy.getServer(1)
 		self.app.rpc.area.areaRemote.getQuickOnhookAward.toServer(serverId,uid,function(flag,data) {
