@@ -171,8 +171,8 @@ areaRemote.prototype.updateFestivalInfo = function(cb) {
 }
 //挑战主线
 areaRemote.prototype.checkpointsSuccess = function(uid,level,cb) {
-	if(this.areaManager.areaMap[areaId]){
-		var awardList = this.areaManager.areaMap[areaId].checkpointsSuccess(uid,level)
+	if(this.areaManager.areaMap[1]){
+		var awardList = this.areaManager.areaMap[1].checkpointsSuccess(uid,level)
 		cb(true,awardList)
 	}else{
 		cb(false)
@@ -180,9 +180,9 @@ areaRemote.prototype.checkpointsSuccess = function(uid,level,cb) {
 }
 //获得随机奖励
 areaRemote.prototype.gainRandChest = function(uid,cb) {
-	if(this.areaManager.areaMap[areaId]){
-		var chestId = this.areaManager.areaMap[areaId].getRandChestId()
-		var awardList = this.areaManager.areaMap[areaId].openChestAward(uid,chestId,1)
+	if(this.areaManager.areaMap[1]){
+		var chestId = this.areaManager.areaMap[1].getRandChestId()
+		var awardList = this.areaManager.areaMap[1].openChestAward(uid,chestId,1)
 		cb(true,awardList)
 	}else{
 		cb(false)
@@ -190,9 +190,9 @@ areaRemote.prototype.gainRandChest = function(uid,cb) {
 }
 //主公等级提升
 areaRemote.prototype.lordLvUp = function(uid,cb) {
-	if(this.areaManager.areaMap[areaId]){
-		var exp = this.areaManager.areaMap[areaId].getLordUpNeedEXP()
-		this.areaManager.areaMap[areaId].addLordExp(uid,exp)
+	if(this.areaManager.areaMap[1]){
+		var exp = this.areaManager.areaMap[1].getLordUpNeedEXP()
+		this.areaManager.areaMap[1].addLordExp(uid,exp)
 		cb(true,exp)
 	}else{
 		cb(false)
@@ -200,8 +200,8 @@ areaRemote.prototype.lordLvUp = function(uid,cb) {
 }
 //领取快速挂机奖励
 areaRemote.prototype.getQuickOnhookAward = function(uid,cb) {
-	if(this.areaManager.areaMap[areaId]){
-		this.areaManager.areaMap[areaId].getQuickOnhookAward(uid,cb)
+	if(this.areaManager.areaMap[1]){
+		this.areaManager.areaMap[1].getQuickOnhookAward(uid,cb)
 	}else{
 		cb(false)
 	}
