@@ -182,6 +182,7 @@ areaRemote.prototype.checkpointsSuccess = function(uid,level,cb) {
 areaRemote.prototype.gainRandChest = function(uid,cb) {
 	if(this.areaManager.areaMap[1]){
 		var chestId = this.areaManager.areaMap[1].getRandChestId()
+		console.log("chestId",chestId)
 		var awardList = this.areaManager.areaMap[1].openChestAward(uid,chestId,1)
 		cb(true,awardList)
 	}else{

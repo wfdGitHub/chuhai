@@ -611,6 +611,7 @@ module.exports = function() {
 		if(!chest_cfg[chestId] || !chest_cfg[chestId]["randAward"]){
 			return []
 		}
+		console.log(uid,chestId,chest_cfg[chestId])
 		var awardMap = []
 		var keyMap = []
 		var chestStr = chest_cfg[chestId]["randAward"]
