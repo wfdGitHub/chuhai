@@ -78,6 +78,39 @@ var model = function() {
 			res.send({flag:flag,data:data})
 		})
 	}
+	//挑战主线
+	gets["checkpointsSuccess"] = function(req,res) {
+		var uid = args.uid
+		var level = args.level
+		var serverId = self.areaDeploy.getServer(1)
+		self.app.rpc.area.areaRemote.checkpointsSuccess.toServer(serverId,uid,level,function(flag,data) {
+			res.send({flag:flag,data:data})
+		})
+	}
+	//获得随机奖励
+	gets["gainRandChest"] = function(req,res) {
+		var uid = args.uid
+		var serverId = self.areaDeploy.getServer(1)
+		self.app.rpc.area.areaRemote.gainRandChest.toServer(serverId,uid,function(flag,data) {
+			res.send({flag:flag,data:data})
+		})
+	}
+	//主公等级提升
+	gets["lordLvUp"] = function(req,res) {
+		var uid = args.uid
+		var serverId = self.areaDeploy.getServer(1)
+		self.app.rpc.area.areaRemote.lordLvUp.toServer(serverId,uid,function(flag,data) {
+			res.send({flag:flag,data:data})
+		})
+	}
+	//领取快速挂机奖励
+	gets["getQuickOnhookAward"] = function(req,res) {
+		var uid = args.uid
+		var serverId = self.areaDeploy.getServer(1)
+		self.app.rpc.area.areaRemote.getQuickOnhookAward.toServer(serverId,uid,function(flag,data) {
+			res.send({flag:flag,data:data})
+		})
+	}
 	//踢出玩家
 	local.kickUser = function(uid) {
 		self.playerDao.getPlayerAreaId(uid,function(flag,data) {
