@@ -9,7 +9,7 @@ var heros = require("../../../../config/gameCfg/heros.json")
 var util = require("../../../../util/util.js")
 var gm_shop = require("../../../../config/gameCfg/gm_shop.json")
 var async = require("async")
-var chestList = Object.keys(chest_awards)
+var chestList = Object.keys(chest_cfg)
 module.exports = function() {
 	var self = this
 	this.playerBags = {}
@@ -611,7 +611,6 @@ module.exports = function() {
 		if(!chest_cfg[chestId] || !chest_cfg[chestId]["randAward"]){
 			return []
 		}
-		console.log(uid,chestId,chest_cfg[chestId])
 		var awardMap = []
 		var keyMap = []
 		var chestStr = chest_cfg[chestId]["randAward"]
