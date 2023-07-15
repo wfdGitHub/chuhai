@@ -93,7 +93,7 @@ connectorRemote.prototype.playerLogin = function(unionid,cb) {
   		function(userInfo,next) {
   			//创建角色
   			accId = userInfo.accId
-			var otps = {areaId : 1,oriId : 1,accId : accId,name : boyNames[Math.floor(Math.random() * boyNames.length)],sex : 1}
+			var otps = {areaId : 1,oriId : 1,accId : accId,name : self.namespace.getName(),sex : 1}
 		    self.app.rpc.area.areaRemote.register.toServer(serverId,otps,function(flag,data) {
 				next()
 			})
@@ -160,6 +160,9 @@ module.exports = function(app) {
 		},{
 			name : "playerDao",
 			ref : "playerDao"
+		},{
+			name : "namespace",
+			ref : "namespace"
 		}]
 	})
 }
