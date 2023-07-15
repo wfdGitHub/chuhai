@@ -180,6 +180,7 @@ loginHandler.prototype.loginArea = function(msg, session, next) {
 				// session.set("real_rmb",playerInfo.real_rmb)
 				// session.push("real_rmb")
 				playerInfo.areaId = areaId
+				playerInfo.ip = session.__session__.__socket__.remoteAddress.ip
 				self.cacheDao.saveCache(Object.assign({"messagetype":"login"},playerInfo))
 				self.app.rpc.area.areaRemote.overdueCheck.toServer(serverId,areaId,uid,function(flag,info) {
 					if(flag){
@@ -210,7 +211,7 @@ var onUserLeave = function(session) {
 		var serverId = session.get("serverId")
 		if(accId)
 			this.accountDao.updatePlaytime({accId : accId,beginTime : beginTime})
-		this.cacheDao.saveCache({"messagetype":"leave",time:dt,uid:uid,accId:accId,name:session.get("name"),beginTime:beginTime})
+		this.cacheDao.saveCache({"messagetype":"leave",time:dt,uid:uid,accId:accId,name:session.get("name"),beginTime:beginTime,ip:session.__session__.__socket__.remoteAddress.ip})
 		if(serverId)
 			this.app.rpc.area.areaRemote.userLeave.toServer(serverId,uid,this.app.serverId,null)
 		this.app.rpc.chat.chatRemote.userLeave(null,uid,this.app.serverId,null)
