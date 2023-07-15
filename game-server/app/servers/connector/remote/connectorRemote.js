@@ -1,5 +1,4 @@
 var bearcat = require("bearcat")
-var boyNames = require("../../../../config/sysCfg/boy.json")
 var async = require("async")
 var connectorRemote = function(app) {
 	this.app = app
