@@ -162,6 +162,51 @@ areaRemote.prototype.updateRebate = function(cb) {
 	}
 	cb(true)
 }
+//更新节日活动
+areaRemote.prototype.updateFestivalInfo = function(cb) {
+	for(var areaId in this.areaManager.areaMap){
+		this.areaManager.areaMap[areaId].updateFestivalInfo()
+	}
+	cb(true)
+}
+//挑战主线
+areaRemote.prototype.checkpointsSuccess = function(uid,level,cb) {
+	if(this.areaManager.areaMap[1]){
+		var awardList = this.areaManager.areaMap[1].checkpointsSuccess(uid,level)
+		cb(true,awardList)
+	}else{
+		cb(false)
+	}
+}
+//获得随机奖励
+areaRemote.prototype.gainRandChest = function(uid,cb) {
+	if(this.areaManager.areaMap[1]){
+		var chestId = this.areaManager.areaMap[1].getRandChestId()
+		console.log("chestId",chestId)
+		var awardList = this.areaManager.areaMap[1].openChestAward(uid,chestId,1)
+		cb(true,awardList)
+	}else{
+		cb(false)
+	}
+}
+//主公等级提升
+areaRemote.prototype.lordLvUp = function(uid,cb) {
+	if(this.areaManager.areaMap[1]){
+		var exp = this.areaManager.areaMap[1].getLordUpNeedEXP()
+		this.areaManager.areaMap[1].addLordExp(uid,exp)
+		cb(true,exp)
+	}else{
+		cb(false)
+	}
+}
+//领取快速挂机奖励
+areaRemote.prototype.getQuickOnhookAward = function(uid,cb) {
+	if(this.areaManager.areaMap[1]){
+		this.areaManager.areaMap[1].getQuickOnhookAward(uid,cb)
+	}else{
+		cb(false)
+	}
+}
 module.exports = function(app) {
 	return bearcat.getBean({
 		id : "areaRemote",
