@@ -8,6 +8,7 @@ var ace_pack = require("../../../../config/gameCfg/ace_pack.json")
 var heros = require("../../../../config/gameCfg/heros.json")
 var util = require("../../../../util/util.js")
 var async = require("async")
+var chestList = Object.keys(chest_cfg)
 module.exports = function() {
 	var self = this
 	this.playerBags = {}
@@ -629,5 +630,9 @@ module.exports = function() {
 			}
 		}
 		return str
+	}
+	//获得随机奖励池ID
+	this.getRandChestId = function() {
+		return chestList[Math.floor(Math.random() * chestList.length)]
 	}
 }
