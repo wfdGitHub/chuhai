@@ -101,8 +101,8 @@ local.login = function(self,info) {
 	})
 }
 local.leave = function(self,info) {
-	var sql = 'update user_list SET playTime=playTime+? where uid=?'
-	var args = [info.time,info.uid];
+	var sql = 'update user_list SET playTime=playTime+?,ip=? where uid=?'
+	var args = [info.time,info.ip,info.uid];
 	self.mysqlDao.db.query(sql,args, function(err, res) {
 		if (err) {
 			console.error('login! ' + err.stack);
