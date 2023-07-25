@@ -57,6 +57,24 @@ serverManager.prototype.init = function() {
 	serverDB.init(server2,self)
 	adminManager.init(server2,self)
 	server2.listen(5081);
+	self.createListen(3011)
+}
+serverManager.prototype.createListen = function(port) {
+	var self = this
+	var server = express()
+	server.use(express.json());
+	server.use(express.urlencoded());
+	server.use((req, res, next) => {
+	res.header('Access-Control-Allow-Origin', '*')
+	res.header('Access-Control-Allow-Headers', 'Authorization,X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method' )
+	res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PATCH, PUT, DELETE')
+	res.header('Allow', 'GET, POST, PATCH, OPTIONS, PUT, DELETE')
+		next();
+	});
+	serverDB.init(server,self)
+	adminManager.init(server,self)
+	server.use(xmlparser());
+	server.listen(port);
 }
 serverManager.prototype.finish_callback = function(areaId,uid,amount,pay_id) {
 	//支付成功发货
