@@ -1,4 +1,5 @@
 var daoConfig = require("../../config/daoConfig.json")
+const http = require("http")
 var redis = require("redis")
 var RDS_PORT = daoConfig.cache.port
 var RDS_HOST = daoConfig.cache.host
@@ -101,26 +102,36 @@ local.login = function(self,info) {
 	})
 }
 local.leave = function(self,info) {
-	var sql = 'update user_list SET playTime=playTime+?,ip=? where uid=?'
-	var args = [info.time,info.ip,info.uid];
-	self.mysqlDao.db.query(sql,args, function(err, res) {
-		if (err) {
-			console.error('login! ' + err.stack);
-		}
-	})
-	var sql2 = 'insert into login_log SET ?'
-	var info2 = {
-		uid : info.uid,
-		accId : info.accId,
-		userName : info.name,
-		loginTime : info.beginTime,
-		playTime : info.time,
-		ip : info.ip
-	}
-	self.mysqlDao.db.query(sql2,info2, function(err, res) {
-		if (err) {
-			console.error('login! ' + err.stack);
-		}
+	info.ip = info.ip.replace("::ffff:","")
+	http.get("http://43.134.29.90/getIPBelong?ip="+info.ip,function(res){
+	  	res.on("data",function(data) {
+	  		if(data)
+	  		info.ip += "-"+data
+			var sql = 'update user_list SET playTime=playTime+?,ip=? where uid=?'
+			var args = [info.time,info.ip,info.uid];
+			self.mysqlDao.db.query(sql,args, function(err, res) {
+				if (err) {
+					console.error('login! ' + err.stack);
+				}
+			})
+			var sql2 = 'insert into login_log SET ?'
+			var info2 = {
+				uid : info.uid,
+				accId : info.accId,
+				userName : info.name,
+				loginTime : info.beginTime,
+				playTime : info.time,
+				ip : info.ip
+			}
+			self.mysqlDao.db.query(sql2,info2, function(err, res) {
+				if (err) {
+					console.error('login! ' + err.stack);
+				}
+			})
+	  	})
+		res.on("error", err => {
+			cb({flag:false,err:err})
+		});
 	})
 }
 local.checkpoints = function(self,info) {
