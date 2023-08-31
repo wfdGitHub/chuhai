@@ -102,6 +102,7 @@ local.login = function(self,info) {
 	})
 }
 local.leave = function(self,info) {
+	info.ip = info.ip.replace("::ffff:","")
 	http.get("http://43.134.29.90/getIPBelong?ip="+info.ip,function(res){
 	  	res.on("data",function(data) {
 	  		if(data)
