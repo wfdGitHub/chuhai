@@ -82,7 +82,6 @@ bearcat.start(function() {
       });
       app.configure('production|development', 'admin', function(){
         var redisDao = bearcat.getBean("redisDao")
-        redisDao.db.del("onlineNums")
         var areaDeploy = bearcat.getBean("areaDeploy")
         areaDeploy.init(app)
         app.set("areaDeploy",areaDeploy)
