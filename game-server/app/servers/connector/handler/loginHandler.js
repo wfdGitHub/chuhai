@@ -152,7 +152,7 @@ loginHandler.prototype.loginArea = function(msg, session, next) {
 		next(null,{flag : false,err : "oriId error"})
 		return
 	}
-    var areaId = this.areaDeploy.getFinalServer(oriId)
+    var areaId = this.areaDeploy.getFinalServer(oriId) || 1
     var serverId = this.areaDeploy.getServer(areaId)
     if(!areaId || !serverId){
         next(null,{flag : false,err : "服务器不存在"})
