@@ -46,6 +46,7 @@ entryHandler.prototype.quickEntry = function(msg, session, next) {
 }
 //token登陆
 entryHandler.prototype.tokenLogin = function(msg, session, next) {
+	console.log("tokenLogin",msg)
   if(this.connectorManager.runTime < 10000){
 	next(null,{flag : false,err : "服务器准备中"})
 	return
@@ -56,14 +57,18 @@ entryHandler.prototype.tokenLogin = function(msg, session, next) {
     next(null,{flag : false,err : "参数错误"})
     return
   }
+  console.log(unionid,token)
   var self = this
   self.redisDao.db.hget("loginToken",unionid,function(err,data) {
   	if(err || !data || data != token){
+  		console.log("token 验证失败!")
   		next(null,{flag : false,err : "token 验证失败"})
   	}else{
 		self.accountDao.getAccountInfo(msg,function(flag,userInfo) {
+			console.log("userInfo",userInfo)
 			if(!flag || !userInfo){
 				self.accountDao.createAccount(msg,function(flag,data) {
+					console.log("createAccount",data)
 					if(!flag || !data){
 						next(null,{flag : false,msg : data})
 						return
