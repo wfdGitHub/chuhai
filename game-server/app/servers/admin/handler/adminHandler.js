@@ -107,8 +107,10 @@ adminHandler.prototype.deleteAreaMailList = function(msg, session, next) {
 }
 //查询玩家信息
 adminHandler.prototype.getPlayerInfo = function(msg, session, next) {
+	console.log("getPlayerInfo",msg)
 	var uid = msg.uid
 	this.playerDao.getPlayerInfo({uid : uid},function(playerInfo) {
+		console.log(playerInfo,playerInfo)
 		if(playerInfo){
 			next(null,{flag : true,msg : playerInfo})
 		}else{

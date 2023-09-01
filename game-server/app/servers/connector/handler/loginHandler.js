@@ -134,12 +134,14 @@ loginHandler.prototype.getRandomName = function(msg, session, next) {
 }
 //登录游戏
 loginHandler.prototype.loginArea = function(msg, session, next) {
+	console.log("loginArea")
 	if(this.connectorManager.runTime < 10000){
         next(null,{flag : false,err : "服务器准备中"})
 		return
 	}
 	var oriId = msg.areaId
 	var accId = session.get("accId")
+	console.log(oriId,accId)
 	if(!accId){
 		next(null,{flag : false,err : "未登录账号"})
 		return
