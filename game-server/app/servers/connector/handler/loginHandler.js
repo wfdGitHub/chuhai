@@ -56,6 +56,7 @@ loginHandler.prototype.getPlayerList = function(msg, session, next) {
 }
 //获取角色数据
 loginHandler.prototype.getPlayerInfo = function(msg, session, next) {
+	console.log("getPlayerInfo",msg)
 	var accId = session.get("accId")
 	var areaId = msg.areaId
 	if(!accId){
@@ -68,7 +69,9 @@ loginHandler.prototype.getPlayerInfo = function(msg, session, next) {
 	}
 	var self = this
 	self.playerDao.getUidByAreaId({accId : accId,areaId : areaId},function(flag,uid) {
+		console.log(flag,uid)
 		self.playerDao.getPlayerInfo({areaId : areaId,uid : uid},function(playerInfo) {
+			console.log(playerInfo)
 			if(playerInfo){
 				next(null,{flag : true,msg : playerInfo})
 			}else{
