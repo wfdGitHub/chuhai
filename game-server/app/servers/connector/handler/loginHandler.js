@@ -159,6 +159,7 @@ loginHandler.prototype.loginArea = function(msg, session, next) {
         return
     }
     var self = this
+    console.log(accId,areaId,oriId,serverId)
     self.playerDao.getUidByAreaId({accId : accId,areaId : oriId},function(flag,uid) {
     	if(!flag){
     		next(null,{flag : false,err : "未注册角色"})
