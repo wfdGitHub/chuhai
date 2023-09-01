@@ -108,6 +108,12 @@
             console.log(data);
         });
       }
+      //获取随机配置
+      var getRandomCfg = function() {
+        pomelo.request("area.normalHandler.getRandomCfg", {}, function(data) {
+            console.log(data);
+        });
+      }
       //获取快速充值数据
       var getRechargeFastData = function() {
         pomelo.request("area.activityHandler.getRechargeFastData", {}, function(data) {
