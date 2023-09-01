@@ -140,12 +140,14 @@ area.prototype.register = function(otps,cb) {
 		return
 	}
 	var self = this
+	console.log("register1",otps)
 	self.playerDao.checkPlayerInfo(otps,function(flag,data) {
 		if(!flag){
 			cb(flag,data)
 		}else{
 			otps.name = data
 			self.playerDao.createPlayer(otps,function(playerInfo) {
+				console.log("register2",playerInfo)
 				if(!playerInfo){
 					cb(false,playerInfo)
 					return
