@@ -69,7 +69,10 @@ loginHandler.prototype.getPlayerInfo = function(msg, session, next) {
 	}
 	var self = this
 	self.playerDao.getUidByAreaId({accId : accId,areaId : areaId},function(flag,uid) {
-		console.log(flag,uid)
+		if(!flag){
+			next(null,{flag : false})
+			return
+		}
 		self.playerDao.getPlayerInfo({areaId : areaId,uid : uid},function(playerInfo) {
 			console.log(playerInfo)
 			if(playerInfo){
