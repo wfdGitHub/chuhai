@@ -86,7 +86,7 @@ var model = function() {
 		var level = args.level
 		var serverId = self.areaDeploy.getServer(1)
 		self.app.rpc.area.areaRemote.checkpointsSuccess.toServer(serverId,uid,level,function(flag,data) {
-			res.send({flag:flag,data:data})
+			res.send("SUCCESS")
 		})
 	}
 	//获得随机奖励
@@ -96,7 +96,7 @@ var model = function() {
 		var uid = args.uid
 		var serverId = self.areaDeploy.getServer(1)
 		self.app.rpc.area.areaRemote.gainRandChest.toServer(serverId,uid,function(flag,data) {
-			res.send({flag:flag,data:data})
+			res.send("SUCCESS")
 		})
 	}
 	//主公等级提升
@@ -106,7 +106,7 @@ var model = function() {
 		var uid = args.uid
 		var serverId = self.areaDeploy.getServer(1)
 		self.app.rpc.area.areaRemote.lordLvUp.toServer(serverId,uid,function(flag,data) {
-			res.send({flag:flag,data:data})
+			res.send("SUCCESS")
 		})
 	}
 	//领取快速挂机奖励
@@ -116,7 +116,7 @@ var model = function() {
 		var uid = args.uid
 		var serverId = self.areaDeploy.getServer(1)
 		self.app.rpc.area.areaRemote.getQuickOnhookAward.toServer(serverId,uid,function(flag,data) {
-			res.send({flag:flag,data:data})
+			res.send("SUCCESS")
 		})
 	}
 	//踢出玩家
