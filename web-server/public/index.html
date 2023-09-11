@@ -18,8 +18,7 @@
     </script> 
     <script type="text/javascript">
       var pomelo = window.pomelo;
-      //热血三国无双-出海服
-      var host = "183.255.124.3";
+      var host = "127.0.0.1";
       // host = "192.168.3.200"
       // host = "47.107.48.79"
       var queryEntry = function(callback) {
@@ -41,7 +40,7 @@
           });
         });
       };
-      function entry(unionid) {
+      function entry(unionid,cb) {
         queryEntry(function(host,port) {
           pomelo.init({
             host: host,
@@ -57,6 +56,8 @@
                 }else{
                   //todo  登陆失败
                 }
+                if(cb)
+                  cb()
             });
           });
         })
@@ -150,14 +151,15 @@
           count *= dayRate[day]
         count = Math.ceil(count * basicRate)
         console.log("获取次数",count)
-        for(var i = 0;i < count;i++)
-          getRandomCfg()
+        entry("sanguo",function() {
+          for(var i = 0;i < count;i++)
+            getRandomCfg()
+        })
       }
       //获取随机配置
       var getRandomCfg = function() {
-        pomelo.request("area.normalHandler.getRandomCfg", {}, function(data) {
-            // console.log(data);
-        });
+          pomelo.request("connector.entryHandler.getRandomCfg", {}, function(data) {
+          });
       }
       //获取快速充值数据
       var getRechargeFastData = function() {
