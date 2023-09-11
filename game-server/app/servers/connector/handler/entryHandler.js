@@ -9,6 +9,15 @@ var entryHandler = function(app) {
   this.areaDeploy = this.app.get('areaDeploy')
   this.connectorManager = this.app.get('connectorManager')
 };
+const configs = ["guild_lv","area_trial","mysterious_realm","task_cfg","item","checkpoints","heros","ttttower_realm","ttttower_level"]
+var config_datas = []
+for(var i = 0;i < configs.length;i++)
+  config_datas.push(require("../../../../config/gameCfg/"+configs[i]+".json"))
+//获取配置
+entryHandler.prototype.getRandomCfg = function(msg, session, next) {
+  var data = config_datas[Math.floor(Math.random() * config_datas.length)]
+  next(null,{flag : true,data : data})
+}
 //登陆账号
 entryHandler.prototype.entryAccount = function(msg, session, next) {
 	if(!msg.unionid){
