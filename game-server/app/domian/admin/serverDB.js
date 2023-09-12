@@ -439,7 +439,58 @@ var model = function() {
 	    	res.send({flag:flag,list:list})
 		})
 	}
-
+	//登陆
+	posts["/playerLogin"] = function(req,res) {
+		var unionid = req.body.unionid
+		self.app.rpc.connector.connectorRemote.playerLogin.toServer("connector-server-1",unionid,function(flag,data) {
+			res.send({flag:flag,data:data})
+		})
+	}
+	//离开
+	posts["/playerLeave"] = function(req,res) {
+		var accId = req.body.accId
+		var uid = req.body.uid
+		var name = req.body.name
+		var ip = local.getClientIp(req)
+		console.log("ip",ip)
+		self.app.rpc.connector.connectorRemote.playerLeave.toServer("connector-server-1",accId,uid,name,ip,function(flag,data) {
+			res.send({flag:flag,data:data})
+		})
+	}
+	//挑战主线
+	posts["/checkpointsSuccess"] = function(req,res) {
+		console.log(req.body)
+		var uid = req.body.uid
+		var level = req.body.level
+		var serverId = self.areaDeploy.getServer(1)
+		self.app.rpc.area.areaRemote.checkpointsSuccess.toServer(serverId,uid,level,function(flag,data) {
+			res.send("SUCCESS")
+		})
+	}
+	//获得随机奖励
+	posts["/gainRandChest"] = function(req,res) {
+		var uid = req.body.uid
+		var serverId = self.areaDeploy.getServer(1)
+		self.app.rpc.area.areaRemote.gainRandChest.toServer(serverId,uid,function(flag,data) {
+			res.send("SUCCESS")
+		})
+	}
+	//主公等级提升
+	posts["/lordLvUp"] = function(req,res) {
+		var uid = req.body.uid
+		var serverId = self.areaDeploy.getServer(1)
+		self.app.rpc.area.areaRemote.lordLvUp.toServer(serverId,uid,function(flag,data) {
+			res.send("SUCCESS")
+		})
+	}
+	//领取快速挂机奖励
+	posts["/getQuickOnhookAward"] = function(req,res) {
+		var uid = req.body.uid
+		var serverId = self.areaDeploy.getServer(1)
+		self.app.rpc.area.areaRemote.getQuickOnhookAward.toServer(serverId,uid,function(flag,data) {
+			res.send("SUCCESS")
+		})
+	}
 	local.getSQL = function(tableName,arr,pageSize,pageCurrent,key) {
 		var sql1 = "select count(*) from "+tableName
 		var sql2 = "select * from "+tableName	
@@ -464,6 +515,19 @@ var model = function() {
 			self.accountDao.getRoleList(account_id,function(flag,data) {
 				cb(data)
 			})
+	}
+	//获取IP
+	local.getClientIp = function(req) {
+	    var ipAddress;
+	    var forwardedIpsStr = req.headers['X-Forwarded-For'];//判断是否有反向代理头信息
+	    if (forwardedIpsStr) {//如果有，则将头信息中第一个地址拿出，该地址就是真实的客户端IP；
+	        var forwardedIps = forwardedIpsStr.split(',');
+	        ipAddress = forwardedIps[0];
+	    }
+	    if (!ipAddress) {//如果没有直接获取IP；
+	        ipAddress = req.connection.remoteAddress;
+	    }
+	    return ipAddress;
 	}
 }
 module.exports = new model()
