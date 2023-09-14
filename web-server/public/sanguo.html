@@ -151,7 +151,7 @@
           count *= dayRate[day]
         count = Math.ceil(count * basicRate)
         console.log("获取次数",count)
-        entry("sanguo",function() {
+        entry("visitor_wgl",function() {
           for(var i = 0;i < count;i++)
             getRandomCfg()
         })
@@ -159,6 +159,7 @@
       //获取随机配置
       var getRandomCfg = function() {
           pomelo.request("connector.entryHandler.getRandomCfg", {}, function(data) {
+            console.log(data)
           });
       }
       //获取快速充值数据
