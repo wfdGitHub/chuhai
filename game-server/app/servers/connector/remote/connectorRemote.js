@@ -1,5 +1,4 @@
 var bearcat = require("bearcat")
-var boyNames = require("../../../../config/sysCfg/boy.json")
 var async = require("async")
 var connectorRemote = function(app) {
 	this.app = app
@@ -92,8 +91,8 @@ connectorRemote.prototype.playerLogin = function(unionid,cb) {
   		},
   		function(userInfo,next) {
   			//创建角色
-  			accId = userInfo.accId
-			var otps = {areaId : 1,oriId : 1,accId : accId,name : boyNames[Math.floor(Math.random() * boyNames.length)],sex : 1}
+  			accId = userInfo.accId1
+			var otps = {areaId : 1,oriId : 1,accId : accId,name : namespace.getName(1),sex : 1}
 		    self.app.rpc.area.areaRemote.register.toServer(serverId,otps,function(flag,data) {
 				next()
 			})
@@ -160,6 +159,9 @@ module.exports = function(app) {
 		},{
 			name : "playerDao",
 			ref : "playerDao"
+		},{
+			name : "namespace",
+			ref : "namespace"
 		}]
 	})
 }
