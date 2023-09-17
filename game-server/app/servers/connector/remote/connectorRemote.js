@@ -92,7 +92,7 @@ connectorRemote.prototype.playerLogin = function(unionid,cb) {
   		function(userInfo,next) {
   			//创建角色
   			accId = userInfo.accId1
-			var otps = {areaId : 1,oriId : 1,accId : accId,name : namespace.getName(1),sex : 1}
+			var otps = {areaId : 1,oriId : 1,accId : accId,name : self.namespace.getName(1),sex : 1}
 		    self.app.rpc.area.areaRemote.register.toServer(serverId,otps,function(flag,data) {
 				next()
 			})
