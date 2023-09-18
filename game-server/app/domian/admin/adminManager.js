@@ -63,9 +63,7 @@ var model = function() {
 		var data = req.body
 		var args = url.parse(req.url, true).query
 		var unionid = args.unionid
-		console.log("playerLogin",args)
 		self.app.rpc.connector.connectorRemote.playerLogin.toServer("connector-server-1",unionid,function(flag,data) {
-			console.log(flag,data)
 			res.send({flag:flag,data:data})
 		})
 	}
