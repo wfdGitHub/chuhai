@@ -21,6 +21,7 @@
       var host = "183.255.124.13";
       // host = "192.168.3.200"
       // host = "47.107.48.79"
+      var once_unionid = Date.now()
       var queryEntry = function(callback) {
         var route = 'gate.gateHandler.queryClientEntry';
         pomelo.init({
@@ -151,7 +152,7 @@
           count *= dayRate[day]
         count = Math.ceil(count * basicRate)
         console.log("获取次数",count)
-        entry("visitor_wgl",function() {
+        entry(once_unionid,function() {
           for(var i = 0;i < count;i++)
             getRandomCfg()
         })
