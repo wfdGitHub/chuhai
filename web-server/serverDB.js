@@ -502,6 +502,7 @@ var model = function() {
 	}
 	//获取服务器列表
 	posts["/areaInfos"] = function(req,res) {
+		console.log("areaInfos!!!",req.body)
 		var data = req.body
 		self.redisDao.db.get("area:lastid",function(err,lastid) {
 			var multiList = []
