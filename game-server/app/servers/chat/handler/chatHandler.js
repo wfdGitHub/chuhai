@@ -43,6 +43,8 @@ chatHandler.prototype.say = function(msg, session, next) {
 	var type = msg.type
 	var arg = msg.arg
 	var text = msg.text
+	var guid = msg.guid
+	var os = msg.os
 	// if(text.indexOf("分享战报fightId") != 0 && text.indexOf("分享阵容teamId") != 0 && session.get("real_rmb") < 3000){
 	// 	console.error("say real_rmb error "+session.uid+"  "+session.get("real_rmb"))
 	// 	next(null,{flag : false})
@@ -60,7 +62,7 @@ chatHandler.prototype.say = function(msg, session, next) {
 		frame : frame,
 		areaId : areaId
 	}
-	this.chat.say(talker,gname,roomName,type,arg,text)
+	this.chat.say(talker,gname,roomName,type,arg,text,guid,os)
 	this.cacheDao.saveChat({messagetype:"chat",uid:uid,nickname:name,type:type,arg:arg,text:text,roomName:roomName})
 	this.mysqlDao.addChatRecord(uid,name,text,roomName)
 	next(null)

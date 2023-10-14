@@ -443,21 +443,22 @@ heroHandler.prototype.upgradeStarSimple = function(msg, session, next) {
       return
     }
     var pcStr = "1000190:1"
-    self.areaManager.areaMap[areaId].consumeItems(uid,pcStr,1,"直升六星",function(flag,err) {
+    self.areaManager.areaMap[areaId].consumeItems(uid,pcStr,1,"直升十星",function(flag,err) {
       if(!flag){
         next(null,{flag : false,err : err})
         return
       }
-      self.heroDao.incrbyHeroInfo(areaId,uid,hId,"star",1,function(flag,star) {
+      self.heroDao.incrbyHeroInfo(areaId,uid,hId,"star",5,function(flag,star) {
         if(flag){
             var name = session.get("name")
             var heroName = heros[heroInfo.id]["name"]
-            var notify = {
-              type : "sysChat",
-              text : "恭喜"+name+"合成出6星英雄"+heroName+",实力大涨名动八荒"
-            }
-            self.areaManager.areaMap[areaId].sendAllUser(notify)
-            self.areaManager.areaMap[areaId].taskUpdate(uid,"heroStar_6",1,heroInfo.id)
+            // var notify = {
+            //   type : "sysChat",
+            //   text : "恭喜"+name+"合成出6星英雄"+heroName+",实力大涨名动八荒"
+            // }
+            // self.areaManager.areaMap[areaId].sendAllUser(notify)
+            self.areaManager.areaMap[areaId].checkLimitGiftStar(uid,heroInfo.id,star)
+            self.areaManager.areaMap[areaId].taskUpdate(uid,"heroStar_10",1,heroInfo.id)
         }
         next(null,{flag : flag,star : star})
       })

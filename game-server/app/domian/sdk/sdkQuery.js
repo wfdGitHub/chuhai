@@ -1,10 +1,14 @@
 //SDK获取数据模块
 const async = require("async")
 const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
-var privateKey = fs.readFileSync(path.join(__dirname, './key/rsa_private_key.pem')).toString('ascii')
-var publicKey = fs.readFileSync(path.join(__dirname, './key/rsa_public_key.pem')).toString('ascii')
+const NodeRSA = require('node-rsa');
+const util = require("../../../util/util.js")
+const http = require('http')
+const https = require('https')
+const querystring = require("querystring")
+var priKey = "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCimZ5iIRKMjqVVAJU5Xkqg2ozLh4pg6z3VwXa8RMnqLirZ+n3gssJRCVVX0vOEefLJGH997h6GV9Gv97URHFAqoHrQP43nz6t0foizzTndYCJONoKFH1q8qnbdkVx2FzlMUUJOwPTRtZUw9RTEHPHAV+39mERtd6mLoB7HfcvW9/IdaSO3hmh90giaP598Sc6cKflVByZ22EgfqFJl2fU1cP4Ol/dnwiTSNqYGRABT05iLJHt2zeLn6d0hIw+QskzRUaep7G3+fhZGHyBQ93q3fziY6CtlOC59LSfr/Sn497M1Qjcq537qr98Y+Vp/usJeQE9UEE8WHK/yPJJfQdbpAgMBAAECggEAVBKWACsVijOfbOoWPklw0Obv8bStaht4J3QWzpXKyRkB8x8/wtTrADeRNw3N9+uOC0htc1GR2ujBdPjhWG2JTeEYX2DdIMUR4/Qg/sbYaoxwcHxi1C44HmENgNbONgkgCUPiwxGmBGCdOWkfSZ+lqExOs9btWqSKt7Uc9Q0oPoe0fGELCwfN9BrB5dJW9hU9Rx+o32PfdAG4xpnwh9J++ssTulrVUuhU6ZGEcR6aVdqXkR/89EicZm5vmACXt92A76zB30ptQz05RooSLG2Fc8g6oMnKAQZbTUQMXze02aIm37eXO8i1d/awoP1Fqqg6T+aqe04j04DXcbfpRPlGeQKBgQDpKNDStPkOCzDft6R8vQ9sIWzluimZwlwv2p4G/GDZJ4irSVjVSxtQ9w8kpSyGYMx66D/y5kNKcpmmpZkhlxF2RYNWv1gcu8ABXogQl+9gMvN/qqjEdYZISNPa/VelN4SSJL9+sy3fa/Rgcf6AtAUQxWg/afu4FZEHykIuUoOxCwKBgQCyh0/HuYGqjxcmT+vcG2EZmol2bZtdHG3bEubLOZVX2RG4KNBaWfQVbpbkdmNgG9D/etseoUVX9o21TutIOHl4yGmRx+5ZxRaejcjEKA721ZxPO2x7mZVPQ3p0FiCGPcsQAcKgY0wpE7ITuZC3f2w5XrH/nIiq37FFtrEprNa4WwKBgCz6zcZIWV+nMweFovrZcjc2/44V6t6ZyzUEJMZOO9TItqnsnXGQarWk48v6/WrzE5+GXIfcehDLqO6oNbFwNlMtt9etVC8+3RymgvNIjEpvqd/wKVy1G3Gocw5lH1plKnMTGco0gN4AMoXEmAd2Mx/4JVNOe9wYdQEeuMO88WDfAoGAIRsYf0f2NKOuPkuJyFpHalEO9qgirGSONpbNt5fpCs5VC9p9sJOHwMWuM5WEnhjqa8Xjhk2Pp10wMBP/a3gVhoFbmk4B9CGpLSPLvBxVkg5QmxzA5Da5ymYP+iD0TRB+bGx3I/jl8aQWXLQHkw+NCSJ3TZhAe7dZjzzuo3TKqIsCgYEA1CzXGF5Ia+glJ84y/JEsTb3hpBG+dND11O2NexE6T6Ftw4a+6BDW2Sg/bN6OyC1myDNGYOAS4PAKbRwCgwpwgCTWViGkO8LHFpUdUduVVHjNTLVDbosfC+RExLtOG3WZ0u09opSsZfsagm9A2V+Ctd3RVNUUoIeiYU/ru2nz0GE="
+var pubKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAopmeYiESjI6lVQCVOV5KoNqMy4eKYOs91cF2vETJ6i4q2fp94LLCUQlVV9LzhHnyyRh/fe4ehlfRr/e1ERxQKqB60D+N58+rdH6Is8053WAiTjaChR9avKp23ZFcdhc5TFFCTsD00bWVMPUUxBzxwFft/ZhEbXepi6Aex33L1vfyHWkjt4ZofdIImj+ffEnOnCn5VQcmdthIH6hSZdn1NXD+Dpf3Z8Ik0jamBkQAU9OYiyR7ds3i5+ndISMPkLJM0VGnqext/n4WRh8gUPd6t384mOgrZTgufS0n6/0p+PezNUI3Kud+6q/fGPlaf7rCXkBPVBBPFhyv8jySX0HW6QIDAQAB"
+var key = new NodeRSA(priKey,'pkcs8-private')
 var model = function() {
 	var self = this
 	var posts = {}
@@ -38,7 +42,7 @@ var model = function() {
 			},
 			apiMethod : body.apiMethod,
 			respTime : body.reqTime,
-			appkey : body.appkey,
+			appkey : this.sdkPay.sdkConfig["AppKey"]["value"],
 			gameType : body.gameType,
 			signature : body.signature,
 			osType : body.osType
@@ -70,17 +74,83 @@ var model = function() {
 		}
 	}
 }
-//小七签名 POST + 空格 + $apiMethod + @ + $appkey + # + $gameType + . + $respTime + \n\n + $bizResp
+//小七敏感词屏蔽  test https://api.x7sy.com/x7DetectionHelper/gateway
+model.prototype.x7syMessageDetect = function(guid,os,message,cb) {
+	var self = this
+	var bizParams = {"guid":guid,"detectionMessage":message}
+	self.x7syRequest(bizParams,"x7Detection.messageDetect",function(data) {
+		var bizResp = JSON.parse(data.bizResp)
+		var detectResult = bizResp.detectResult
+		if(bizResp.respCode != "SUCCESS"){
+			cb(false)
+			return
+		}
+		if(detectResult.level != 1){
+			if(detectResult.sensitiveWords.length)
+				for(var i = 0;i < detectResult.sensitiveWords.length;i++)
+					message = message.replaceAll(detectResult.sensitiveWords[i],"*")
+			self.x7syMessageDetectReport(detectResult.detectionLogId,3)
+		}
+		cb(true,message,detectResult.level)
+	})
+}
+//小七敏感词上报
+model.prototype.x7syMessageDetectReport = function(detectionLogId,operateType) {
+	this.x7syRequest({detectionLogId:detectionLogId,operateType:operateType},"x7Detection.messageDetectReport",function(data) {})
+}
+//小七接口
+model.prototype.x7syRequest = function(bizParams,apiMethod,cb) {
+	var options={
+	  hostname:'api.x7sy.com',
+	  port:443,
+	  path:'/x7Detection/gateway',
+	  method:'POST',
+	  headers:{
+	    "Content-Type":"application/x-www-form-urlencoded",
+	  }
+	}
+	var info = {
+		bizParams : bizParams,
+		apiMethod : apiMethod,
+		reqTime : new Date().toISOString(),
+		appkey : this.sdkPay.sdkConfig["AppKey"]["value"],
+		gameType : "client",
+		osType : "android"
+	}
+	this.x7syRequestSign(info)
+	var req=https.request(options,function(res){
+	var _data='';
+	res.on('data', function(chunk){
+	   _data += chunk;
+	});
+	res.on('end', function(){
+		_data = JSON.parse(_data)
+		cb(_data)
+	 });
+	})
+	req.on('error', function(e) {
+	})
+	info = querystring.stringify(info)
+	req.write(info);
+	req.end()
+}
+model.prototype.getTimeStamp = function() {
+    var parts = isostr.match(/d+/g);
+    return new Date(parts[0]+'-'+parts[1]+'-'+parts[2]+' '+parts[3]+':'+parts[4]+':'+parts[5]).getTime();
+}
+//小七回调签名 POST + 空格 + $apiMethod + @ + $appkey + # + $gameType + . + $respTime + \n\n + $bizResp
 model.prototype.x7syhashSign = function(info) {
 	info.bizResp = JSON.stringify(info.bizResp)
 	var appkey = this.sdkPay.sdkConfig["appkey"]
 	var payload = "POST "+info.apiMethod+"@"+appkey+"#"+info.gameType+"."+info.respTime+"\n\n"+info.bizResp
-	// console.log("payload",payload)
-	var data = Buffer.from(payload);
-	// Sign the data and returned signature in buffer 
-	var sign = crypto.sign("RSA-SHA256", data , privateKey);
-	// Convert returned buffer to base64
-    info.signature = sign.toString('base64');
+    info.signature = key.sign(Buffer.from(payload),"base64").toString("base64")
+}
+//小七请求签名
+model.prototype.x7syRequestSign = function(info) {
+	info.bizParams = JSON.stringify(info.bizParams)
+	var appkey = this.sdkPay.sdkConfig["AppKey"]["value"]
+	var payload = "POST "+info.apiMethod+"@"+appkey+"#"+info.gameType+"."+info.reqTime+"\n\n"+info.bizParams
+    info.signature = key.sign(Buffer.from(payload),"base64").toString("base64")
 }
 //批量获取角色信息
 model.prototype.getx7syRoleList = async function(guids,serverId,cb) {

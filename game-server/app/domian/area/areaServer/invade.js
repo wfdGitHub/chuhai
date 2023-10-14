@@ -40,7 +40,7 @@ module.exports = function() {
 		switch(state){
 			case 0:
 				//进入初始状态
-				local.resetTime()
+				local.invadeReset()
 			break
 			case 1:
 				//开始挑战
@@ -146,7 +146,7 @@ module.exports = function() {
 			cb(false,"当前不在挑战阶段")
 			return
 		}
-		if(!Number.isInteger(index) || index > 3 || index < 1){
+		if(!Number.isInteger(index) || index > 2 || index < 0){
 			cb(false,"index error "+index)
 			return
 		}

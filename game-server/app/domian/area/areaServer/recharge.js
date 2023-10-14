@@ -543,7 +543,7 @@ module.exports = function() {
 			quick_pri += day31Time
 		}
 		self.chageLordData(uid,"quick_pri",quick_pri)
-		self.sendTextToMail(uid,"recharge",activity_cfg["quick_award"]["value"])
+		self.sendTextToMail(uid,"recharge",pay_cfg["1004"]["award"])
 		cb(true,{quick_pri:quick_pri})
 	}
 	//购买三界特权
@@ -558,7 +558,7 @@ module.exports = function() {
 			tour_pri += day31Time
 		}
 		self.chageLordData(uid,"tour_pri",tour_pri)
-		self.sendTextToMail(uid,"recharge",activity_cfg["tour_award"]["value"])
+		self.sendTextToMail(uid,"recharge",pay_cfg["1005"]["award"])
 		cb(true,{tour_pri:tour_pri})
 	}
 	//购买宝石矿场特权
@@ -573,7 +573,7 @@ module.exports = function() {
 			stone_pri += day31Time
 		}
 		self.chageLordData(uid,"stone_pri",stone_pri)
-		self.sendTextToMail(uid,"recharge",activity_cfg["stone_award"]["value"])
+		self.sendTextToMail(uid,"recharge",pay_cfg["1006"]["award"])
 		cb(true,{stone_pri:stone_pri})
 	}
 }

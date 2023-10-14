@@ -1,4 +1,5 @@
 //聊天服务器组件
+var sdkConfig = require("../../config/gameCfg/sdkConfig.json")
 var chat = function() {
 	this.name = "chat"
 	this.rooms = {}				//聊天室群组
@@ -16,7 +17,18 @@ chat.prototype.clearChatRecord = function() {
 		this.records[roomName] = []
 }
 //发送聊天消息
-chat.prototype.say = function(talker,gname,roomName,type,arg,text) {
+chat.prototype.say = function(talker,gname,roomName,type,arg,text,guid,os) {
+	var self = this
+	if(sdkConfig.sdk_type["value"] == "x7sy"){
+		self.sdkQuery.x7syMessageDetect(guid,os,text,function(flag,message,level) {
+			if(flag)
+				self.finishSay(talker,gname,roomName,type,arg,message)
+		})
+	}else{
+		self.finishSay(talker,gname,roomName,type,arg,text)
+	}
+}
+chat.prototype.finishSay = function(talker,gname,roomName,type,arg,text) {
 	if(this.rooms[roomName] && this.rooms[roomName].getMember(talker.uid)){
 		var notify = {
 			roomName : roomName,
@@ -80,5 +92,9 @@ chat.prototype.userLeave = function(uid,sid) {
 
 module.exports = {
 	id : "chat",
-	func : chat
+	func : chat,
+	props : [{
+		name : "sdkQuery",
+		ref : "sdkQuery"
+	}]
 }

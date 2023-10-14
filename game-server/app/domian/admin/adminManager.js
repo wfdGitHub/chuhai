@@ -46,79 +46,6 @@ var model = function() {
 		self.app.rpc.area.areaRemote.updateRebate.toServer("*",null)
 		res.send("SUCCESS")
 	}
-	gets["/test"] = function(req,res) {
-	    var ipAddress;
-	    var forwardedIpsStr = req.headers['X-Forwarded-For'];//判断是否有反向代理头信息
-	    console.log("forwardedIpsStr",forwardedIpsStr)
-	    if (forwardedIpsStr) {//如果有，则将头信息中第一个地址拿出，该地址就是真实的客户端IP；
-	        var forwardedIps = forwardedIpsStr.split(',');
-	        ipAddress = forwardedIps[0];
-	    }
-	    if (!ipAddress) {//如果没有直接获取IP；
-	        ipAddress = req.connection.remoteAddress;
-	    }
-	    res.send("SUCCESS")
-	}
-	gets["/playerLogin"] = function(req,res) {
-		var data = req.body
-		var args = url.parse(req.url, true).query
-		var unionid = args.unionid
-		self.app.rpc.connector.connectorRemote.playerLogin.toServer("connector-server-1",unionid,function(flag,data) {
-			res.send({flag:flag,data:data})
-		})
-	}
-	gets["/playerLeave"] = function(req,res) {
-		var data = req.body
-		var args = url.parse(req.url, true).query
-		var accId = args.accId
-		var uid = args.uid
-		var name = args.name
-		var ip = local.getClientIp(req)
-		self.app.rpc.connector.connectorRemote.playerLeave.toServer("connector-server-1",accId,uid,name,ip,function(flag,data) {
-			res.send({flag:flag,data:data})
-		})
-	}
-	//挑战主线
-	gets["/checkpointsSuccess"] = function(req,res) {
-		var data = req.body
-		var args = url.parse(req.url, true).query
-		var uid = args.uid
-		var level = args.level
-		var serverId = self.areaDeploy.getServer(1)
-		self.app.rpc.area.areaRemote.checkpointsSuccess.toServer(serverId,uid,level,function(flag,data) {
-			res.send("SUCCESS")
-		})
-	}
-	//获得随机奖励
-	gets["/gainRandChest"] = function(req,res) {
-		var data = req.body
-		var args = url.parse(req.url, true).query
-		var uid = args.uid
-		var serverId = self.areaDeploy.getServer(1)
-		self.app.rpc.area.areaRemote.gainRandChest.toServer(serverId,uid,function(flag,data) {
-			res.send("SUCCESS")
-		})
-	}
-	//主公等级提升
-	gets["/lordLvUp"] = function(req,res) {
-		var data = req.body
-		var args = url.parse(req.url, true).query
-		var uid = args.uid
-		var serverId = self.areaDeploy.getServer(1)
-		self.app.rpc.area.areaRemote.lordLvUp.toServer(serverId,uid,function(flag,data) {
-			res.send("SUCCESS")
-		})
-	}
-	//领取快速挂机奖励
-	gets["/getQuickOnhookAward"] = function(req,res) {
-		var data = req.body
-		var args = url.parse(req.url, true).query
-		var uid = args.uid
-		var serverId = self.areaDeploy.getServer(1)
-		self.app.rpc.area.areaRemote.getQuickOnhookAward.toServer(serverId,uid,function(flag,data) {
-			res.send("SUCCESS")
-		})
-	}
 	//踢出玩家
 	local.kickUser = function(uid) {
 		self.playerDao.getPlayerAreaId(uid,function(flag,data) {
@@ -130,19 +57,6 @@ var model = function() {
 				}
 			}
 		})
-	}
-	//获取IP
-	local.getClientIp = function(req) {
-	    var ipAddress;
-	    var forwardedIpsStr = req.headers['X-Forwarded-For'];//判断是否有反向代理头信息
-	    if (forwardedIpsStr) {//如果有，则将头信息中第一个地址拿出，该地址就是真实的客户端IP；
-	        var forwardedIps = forwardedIpsStr.split(',');
-	        ipAddress = forwardedIps[0];
-	    }
-	    if (!ipAddress) {//如果没有直接获取IP；
-	        ipAddress = req.connection.remoteAddress;
-	    }
-	    return ipAddress;
 	}
 }
 module.exports = new model()

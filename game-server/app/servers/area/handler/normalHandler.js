@@ -1,19 +1,11 @@
 var bearcat = require("bearcat")
 var async = require("async")
 var default_cfg = require("../../../../config/gameCfg/default_cfg.json")
+var sdkConfig = require("../../../../config/gameCfg/sdkConfig.json")
 var normalHandler = function(app) {
   this.app = app;
 	this.areaManager = this.app.get("areaManager")
 };
-const configs = ["guild_lv","area_trial","mysterious_realm","task_cfg","item","checkpoints","heros","ttttower_realm","ttttower_level"]
-var config_datas = []
-for(var i = 0;i < configs.length;i++)
-  config_datas.push(require("../../../../config/gameCfg/"+configs[i]+".json"))
-//获取配置
-normalHandler.prototype.getRandomCfg = function(msg, session, next) {
-  var data = config_datas[Math.floor(Math.random() * config_datas.length)]
-  next(null,{flag : true,data : data})
-}
 //激活礼包码
 normalHandler.prototype.verifyCDKey = function(msg, session, next) {
   var self = this
@@ -204,12 +196,27 @@ normalHandler.prototype.changeName = function(msg, session, next) {
   var areaId = session.get("areaId")
   var oriId = session.get("oriId")
   var name = msg.name
+  var guid = msg.guid
+  var os = msg.os
   var self = this
   if(name.indexOf(".") != -1){
     next(null,{flag:false,err:"不能包含特殊字符"})
     return
   }
   async.waterfall([
+    function(cb) {
+      //小七敏感词检测
+      if(sdkConfig.sdk_type["value"] == "x7sy"){
+        self.sdkQuery.x7syMessageDetect(guid,os,name,function(flag,message,level) {
+          if(!flag || level != 1)
+            cb("名称含有敏感信息")
+          else
+            cb()
+        })
+      }else{
+        cb()
+      }
+    },
     function(cb) {
       self.redisDao.db.hexists("game:nameMap",name,function(err,data) {
         if(data){
@@ -247,6 +254,86 @@ normalHandler.prototype.changeName = function(msg, session, next) {
     }
   ],function(err) {
     next(null,{flag : false,err : err})
+  })
+}
+//初始化名称性别
+normalHandler.prototype.initNameAndSex = function(msg, session, next) {
+  var uid = session.uid
+  var areaId = session.get("areaId")
+  var oriId = session.get("oriId")
+  var name = msg.name
+  var sex = msg.sex
+  var guid = msg.guid
+  var os = msg.os
+  var type = msg.type
+  var self = this
+  if(!name || (sex !== 1 && sex !== 2)){
+    next(null,{flag:false,err:"参数错误"})
+    return
+  }
+  if(sex !== 1)
+    sex = 2
+  async.waterfall([
+    function(cb) {
+      //小七敏感词检测
+      if(!type && sdkConfig.sdk_type["value"] == "x7sy"){
+        self.sdkQuery.x7syMessageDetect(guid,os,name,function(flag,message,level) {
+          if(!flag || level != 1)
+            cb("名称含有敏感信息")
+          else
+            cb()
+        })
+      }else{
+        cb()
+      }
+    },
+    function(cb) {
+      self.redisDao.db.hexists("game:nameMap",name,function(err,data) {
+        if(data){
+          cb("名称已存在")
+        }else{
+          cb()
+        }
+      })
+    },
+    function() {
+      self.redisDao.db.hget("player:user:"+uid+":playerInfo","name",function(err,data) {
+        self.redisDao.db.hdel("game:nameMap",data)
+        self.redisDao.db.hset("game:nameMap",name,uid)
+        self.playerDao.setPlayerInfo({uid : uid,key : "name",value : name})
+        self.playerDao.setPlayerInfo({uid : uid,key : "sex",value : sex})
+        session.set("name",name)
+        session.push("name",function() {
+          next(null,{flag:true})
+        })
+      })
+    }
+  ],function(err) {
+    next(null,{flag : false,err : err})
+  })
+}
+//选择初始英雄
+normalHandler.prototype.chooseFirstHero = function(msg, session, next) {
+  var uid = session.uid
+  var index = msg.index
+  var areaId = session.get("areaId")
+  if(!default_cfg["choose_hero"+index]){
+    next(null,{flag:false,err:"index error"+index})
+    return
+  }
+  var self = this
+  self.redisDao.db.hget("player:user:"+uid+":playerData","choose",function(err,data) {
+    if(!data){
+      self.redisDao.db.hset("player:user:"+uid+":playerData","choose",1)
+      self.redisDao.db.hincrby("game:statistics:chooseHero",default_cfg["choose_hero"+index]["value"],1)
+      self.heroDao.gainHero(areaId,uid,{id : default_cfg["choose_hero"+index]["value"]},function(flag,heroInfo) {
+        self.heroDao.setFightTeam(areaId,uid,[null,heroInfo.hId,null,null,null,null],function(flag) {
+          next(null,{flag:true,heroInfo:heroInfo})
+        })
+      })
+    }else{
+      next(null,{flag:false})
+    }
   })
 }
 //开启限时活动
@@ -339,6 +426,9 @@ module.exports = function(app) {
     },{
       name : "CDKeyDao",
       ref : "CDKeyDao"
+    },{
+      name : "sdkQuery",
+      ref : "sdkQuery"
     }]
   })
 };

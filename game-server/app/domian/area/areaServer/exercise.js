@@ -125,8 +125,8 @@ module.exports = function() {
 			},
 			function(next) {
 				//战斗
-				var atkTeam = self.standardTeam(uid,team,"main",155)
-				var defTeam = self.standardTeam(uid,exercise_list[teamId][index],"exercise_"+level,155)
+				var atkTeam = self.standardTeam(uid,team,"main",300)
+				var defTeam = self.standardTeam(uid,exercise_list[teamId][index],"exercise_"+level,300)
 				var seededNum = Date.now()
 				var winFlag = self.fightContorl.beginFight(atkTeam,defTeam,{seededNum : seededNum})
 				if(winFlag){

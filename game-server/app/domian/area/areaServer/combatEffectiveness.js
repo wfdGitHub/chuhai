@@ -330,7 +330,6 @@ module.exports = function() {
 	}
 	//预备战斗
 	this.readyFight = function(uid,type,cb) {
-		console.log("readyFight",uid,type)
 		if(typeof type !== "string")
 			type = "default"
 		if(!readyFightMaps[type])
@@ -345,7 +344,6 @@ module.exports = function() {
 	}
 	//获取玩家上阵配置(出战阵容)
 	this.getFightInfo = function(uid,type) {
-		console.log("getFightInfo",uid,type)
 		if(!readyFightMaps[type] || !readyFightMaps[type][uid])
 			return false
 		var fightInfo = readyFightMaps[type][uid]

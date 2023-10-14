@@ -223,21 +223,25 @@ module.exports = function() {
 		self.getHMObj(uid,main_name,["normal_score","normal_luck_1","normal_luck_2","normal_luck_3","normal_luck_4","normal_luck_5"],function(list) {
 			var score = Number(list[0]) || 0
 			if(score >= treasure_cfg["normal_luck_"+boxId].arg && !list[boxId]){
-				var info = {}
-				info.awardList = self.addItemStr(uid,treasure_cfg["normal_luck_"+boxId]["value"],1,"普通寻宝幸运宝箱"+boxId)
-				list[boxId] = 1
-				if(list[1] && list[2] && list[3] && list[4] && list[5]){
-					info.refresh = true
-					info.score = score - 1000
-					for(var i = 1;i <= 5;i++){
-						if(i != boxId)
-							self.delObj(uid,main_name,"normal_luck_"+i)
+				self.incrbyObj(uid,main_name,"normal_luck_"+boxId,1,function(data) {
+					if(data != 1){
+						cb(false,"积分不足或已领取")
+						return
 					}
-					self.incrbyObj(uid,main_name,"normal_score",-1000)
-				}else{
-					self.setObj(uid,main_name,"normal_luck_"+boxId,1)
-				}
-				cb(true,info)
+					var info = {}
+					info.awardList = self.addItemStr(uid,treasure_cfg["normal_luck_"+boxId]["value"],1,"普通寻宝幸运宝箱"+boxId)
+					list[boxId] = 1
+					if(list[1] && list[2] && list[3] && list[4] && list[5]){
+						info.refresh = true
+						info.score = score - 1000
+						for(var i = 1;i <= 5;i++){
+							if(i != boxId)
+								self.delObj(uid,main_name,"normal_luck_"+i)
+						}
+						self.incrbyObj(uid,main_name,"normal_score",-1000)
+					}
+					cb(true,info)
+				})
 			}else{
 				cb(false,"积分不足或已领取")
 			}
@@ -356,21 +360,25 @@ module.exports = function() {
 		self.getHMObj(uid,main_name,["high_score","high_luck_1","high_luck_2","high_luck_3","high_luck_4","high_luck_5"],function(list) {
 			var score = Number(list[0]) || 0
 			if(score >= treasure_cfg["high_luck_"+boxId].arg && !list[boxId]){
-				var info = {}
-				info.awardList = self.addItemStr(uid,treasure_cfg["high_luck_"+boxId]["value"],1,"高级寻宝幸运宝箱"+boxId)
-				list[boxId] = 1
-				if(list[1] && list[2] && list[3] && list[4] && list[5]){
-					info.refresh = true
-					info.score = score - 1000
-					for(var i = 1;i <= 5;i++){
-						if(i != boxId)
-							self.delObj(uid,main_name,"high_luck_"+i)
+				self.incrbyObj(uid,main_name,"high_luck_"+boxId,1,function(data) {
+					if(data != 1){
+						cb(false,"积分不足或已领取")
+						return
 					}
-					self.incrbyObj(uid,main_name,"high_score",-1000)
-				}else{
-					self.setObj(uid,main_name,"high_luck_"+boxId,1)
-				}
-				cb(true,info)
+					var info = {}
+					info.awardList = self.addItemStr(uid,treasure_cfg["high_luck_"+boxId]["value"],1,"高级寻宝幸运宝箱"+boxId)
+					list[boxId] = 1
+					if(list[1] && list[2] && list[3] && list[4] && list[5]){
+						info.refresh = true
+						info.score = score - 1000
+						for(var i = 1;i <= 5;i++){
+							if(i != boxId)
+								self.delObj(uid,main_name,"high_luck_"+i)
+						}
+						self.incrbyObj(uid,main_name,"high_score",-1000)
+					}
+					cb(true,info)
+				})
 			}else{
 				cb(false,"积分不足或已领取")
 			}

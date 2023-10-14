@@ -1,6 +1,6 @@
 //数据清理
 const cleanDatas = ["ST","ace_lotto","activity","areaMail","area_challenge","arena","arenaRecord","arg_gift","bag","banner","bazaar","cdkey","ctask","dailyfb","drum","endless","exercise_pass","festival","frame_list","friend_list","gather","guild","heroArchive","horse","hufu","liveness","manorRecord","month_shop","task","title_list","tour","ttt","war_horn","week_shop","week_target","zhanfa","zhulu","zhuluTeam","mysterious","pit","limit_gift","mail","privilege","recharge_fast"]
-const CLEAN_TIME = 1209600000
+const CLEAN_TIME = 172800000
 const SQL_TIME = 1209600000
 var model = function(){}
 //初始化
@@ -23,10 +23,11 @@ model.prototype.checkNext = function(uid,max,total) {
 		console.log("检查结束，总计清理"+total+"个账号")
 		return
 	}
-	self.redisDao.db.hmget("player:user:"+uid+":playerInfo",["real_rmb","offline","clean"],function(err,list) {
+	self.redisDao.db.hmget("player:user:"+uid+":playerInfo",["real_rmb","offline","clean","level"],function(err,list) {
 		var real_rmb = Number(list[0]) || 0
 		var offline = Number(list[1]) || 0
-		if(!list[2] && (real_rmb < 3000) && (offline < Date.now() - CLEAN_TIME)){
+		var lv = Number(list[3]) || 0
+		if(!list[2] && (real_rmb <= 1000) && lv < 40 && (offline < Date.now() - CLEAN_TIME)){
 			self.cleanPlayer(uid)
 			total++
 		}

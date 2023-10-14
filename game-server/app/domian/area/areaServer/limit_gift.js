@@ -46,7 +46,7 @@ module.exports = function() {
 	}
 	//升星检查限时礼包
 	this.checkLimitGiftStar = function(uid,heroId,star) {
-		if(star == 6 && gift_hero[heroId]){
+		if(star == 10 && gift_hero[heroId]){
 			self.getObj(uid,second_name,"hero_"+heroId,function(data) {
 				if(!data){
 					self.setObj(uid,second_name,"hero_"+heroId,1)
