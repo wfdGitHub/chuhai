@@ -66,6 +66,14 @@ module.exports = function() {
 		}
 		self.redisDao.db.hdel("player:user:"+uid+":playerInfo",key)
 	}
+	//获取升级所需经验
+	this.getLordUpNeedEXP = function(uid) {
+		if(self.players[uid]){
+			return lord_lv[Math.min(200,lord_lv[self.players[uid]+1]["exp"])]
+		}else{
+			return 100000
+		}
+	}
 	//主公获得经验值
 	this.addLordExp = function(uid,exp) {
 		self.redisDao.db.hincrby("player:user:"+uid+":playerInfo","exp",exp,function(err,value) {

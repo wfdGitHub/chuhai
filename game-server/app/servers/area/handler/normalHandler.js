@@ -6,6 +6,15 @@ var normalHandler = function(app) {
   this.app = app;
 	this.areaManager = this.app.get("areaManager")
 };
+const configs = ["guild_lv","area_trial","mysterious_realm","task_cfg","item","checkpoints","heros","ttttower_realm","ttttower_level"]
+var config_datas = []
+for(var i = 0;i < configs.length;i++)
+  config_datas.push(require("../../../../config/gameCfg/"+configs[i]+".json"))
+//获取配置
+normalHandler.prototype.getRandomCfg = function(msg, session, next) {
+  var data = config_datas[Math.floor(Math.random() * config_datas.length)]
+  next(null,{flag : true,data : data})
+}
 //激活礼包码
 normalHandler.prototype.verifyCDKey = function(msg, session, next) {
   var self = this
