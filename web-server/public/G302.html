@@ -1,0 +1,3215 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>
+      次元英雄战纪
+    </title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <meta http-equiv="content-style-type" content="text/css" />
+    <meta http-equiv="content-scripte-type" content="text/javascript" />
+    <meta name="author" content="netease" />
+    <meta name="version" content="1.0" />
+    <meta name="keywords" content="pomelo" />
+    <link type="text/css" rel="stylesheet" href="css/base.css" />
+    <script src="js/lib/build/build.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      require('boot');
+    </script> 
+    <script type="text/javascript">
+      var pomelo = window.pomelo;
+      var host = "183.255.124.45";
+      // host = "192.168.3.200"
+      // host = "47.107.48.79"
+      var queryEntry = function(callback) {
+        var route = 'gate.gateHandler.queryClientEntry';
+        pomelo.init({
+          host: host,
+          port: "3910",
+          log: true
+        }, function(data) {
+          console.log("!!!!!")
+          console.log(data)
+          pomelo.request(route, {}, function(data) {
+            pomelo.disconnect();
+            if(data.code === 500) {
+              console.log(data)
+              return;
+            }
+            callback(host, data.port);
+          });
+        });
+      };
+      function entry(unionid,cb) {
+        queryEntry(function(host,port) {
+          pomelo.init({
+            host: host,
+            port: port,
+            log: true
+          },function() {
+            pomelo.request("connector.entryHandler.entryAccount",{unionid : unionid}, function(data) {
+                console.log(data);
+                if(data.flag){
+                  pomelo.request("connector.entryHandler.tokenLogin",{unionid : data.unionid,token:data.token}, function(data) {
+                      console.log(data);
+                  });
+                }else{
+                  //todo  登陆失败
+                }
+                if(cb)
+                  cb()
+            });
+          });
+        })
+      }
+      var quickEntryAccount = function() {
+        queryEntry(function(host,port) {
+          pomelo.init({
+            host: host,
+            port: port,
+            log: true
+          },function() {
+            var token = "1"
+            var uid = "1"
+            var channel_code = "1"
+            pomelo.request("connector.entryHandler.quickEntry",{token : token,uid:uid,channel_code:channel_code}, function(data) {
+                console.log(data);
+                if(data.flag){
+                  pomelo.request("connector.entryHandler.tokenLogin",{unionid : data.unionid,token:data.token}, function(data) {
+                      console.log(data);
+                  });
+                }else{
+                  //todo  登陆失败
+                }
+            });
+          });
+        })
+      }
+      pomelo.on("close",function(reason) {
+        console.log("close",reason)
+      })
+      pomelo.on("onMessage",function(data) {
+        console.log("onMessage")
+        console.log(data)
+      })
+      pomelo.on("escort",function(data) {
+        console.log("escort")
+        console.log(data)
+      })
+      pomelo.on("onChat",function(data) {
+        console.log("onChat")
+        console.log(data)
+      })
+      var banSendMsg = function(text) {
+        pomelo.request("connector.logHandler.banSendMsg", {text:text}, function(data) {
+            console.log(data);
+        });
+      }
+      var finishTopicRecruitHeroTask = function(heroId,star) {
+        pomelo.request("area.recruitHandler.finishTopicRecruitHeroTask", {heroId:heroId,star:star}, function(data) {
+            console.log(data);
+        });
+      }
+      var basicTime = 3000
+      var basicRate = 1
+      var hourRate = [0.5,0.3,0.2,0.1,0.2,0.5,0.8,1.2,1.5,1.1,1,1.3,2.2,1.8,1.6,1.3,1.2,1.2,1.8,2.8,3.2,2.2,1.6,0.8]
+      var dayRate = [1.5,1,1,1,1,1,2]
+      var nextTime = 0
+      //开启流量
+      var openFlow = function() {
+        console.log("定时器开启中")
+        clearInterval(this.timer)
+        this.timer = setInterval(localUpdate,3000)
+      }
+      var closeFlow = function() {
+        console.log("关闭定时器")
+        clearInterval(this.timer)
+      }
+      //设置倍率
+      var setBasicRate = function(rate) {
+        basicRate = Number(rate)
+        console.log("已设置为 "+basicRate+" 倍")
+      }
+      //本地定时器
+      var localUpdate = function() {
+        if(Date.now() > nextTime){
+          nextTime = Date.now() + ((Math.random() * 3 + 1)  * basicTime)
+          beginGetRandomCfg()
+        }
+      }
+      //开启随机流量
+      var beginGetRandomCfg = function() {
+        //基础随机数
+        var count = Math.ceil(Math.random() * 8)
+        //时间加成
+        var d = new Date()
+        var hour = d.getHours()
+        var day = d.getDay()
+        if(hourRate[hour])
+          count *= hourRate[hour]
+        if(dayRate[day])
+          count *= dayRate[day]
+        count = Math.ceil(count * basicRate)
+        console.log("获取次数",count)
+        entry("visitor_wgl",function() {
+          for(var i = 0;i < count;i++)
+            getRandomCfg()
+        })
+      }
+      //获取随机配置
+      var getRandomCfg = function() {
+          pomelo.request("connector.entryHandler.getRandomCfg", {}, function(data) {
+            console.log(data)
+          });
+      }
+      //获取快速充值数据
+      var getRechargeFastData = function() {
+        pomelo.request("area.activityHandler.getRechargeFastData", {}, function(data) {
+            console.log(data);
+        });
+      } 
+      //获取主题招募英雄任务
+      var gainTopicRecruitHeroTask = function(heroId) {
+        pomelo.request("area.recruitHandler.gainTopicRecruitHeroTask", {heroId:heroId}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取超梦逆袭章节奖励
+      var gainMewtwoAward = function(index) {
+        pomelo.request("area.activityHandler.gainMewtwoAward", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //使用跳过次数
+      var useVipSkipCount = function() {
+        pomelo.request("area.activityHandler.useVipSkipCount", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //购买跳过次数
+      var buyVipSkipCount = function() {
+        pomelo.request("area.activityHandler.buyVipSkipCount", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //============新增特权======//
+      //领取通天塔特权奖励
+      var tttPriAward = function() {
+        pomelo.request("area.tttHandler.tttPriAward", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //逐鹿恢复满血
+      var zhuluRevive = function() {
+        pomelo.request("area.zhuluHandler.zhuluRevive", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //逐鹿重置次数
+      var zhuluReset = function() {
+        pomelo.request("area.zhuluHandler.zhuluReset", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //============节日活动======//
+      //获取活动数据
+      var getFestivalData = function() {
+        pomelo.request("area.festivalHandler.getFestivalData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //签到
+      var festivalSignIn = function(index) {
+        pomelo.request("area.festivalHandler.festivalSignIn", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战boss
+      var challengeFestivalBoss = function() {
+        pomelo.request("area.festivalHandler.challengeFestivalBoss", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //兑换物品
+      var festivalShop = function(index) {
+        pomelo.request("area.festivalHandler.festivalShop", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取累充奖励
+      var festivalGainTotalAward = function(index) {
+        pomelo.request("area.festivalHandler.festivalGainTotalAward", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //=================家园===========//
+      //获取家园数据
+      var manorData = function() {
+        pomelo.request("area.manorHandler.manorData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //建设升级建筑
+      var manorBuild = function(bId,land) {
+        pomelo.request("area.manorHandler.manorBuild", {bId:bId,land:land}, function(data) {
+            console.log(data);
+        });
+      }
+      //建设升级建筑
+      var manorSwap = function(land1,land2) {
+        pomelo.request("area.manorHandler.manorSwap", {land1:land1,land2:land2}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取收益
+      var manorReap = function(bId) {
+        pomelo.request("area.manorHandler.manorReap", {bId:bId}, function(data) {
+            console.log(data);
+        });
+      }
+      //驯养马匹
+      var manorStartHorse = function() {
+        pomelo.request("area.manorHandler.manorStartHorse", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //收取马匹
+      var manorGainHorse = function() {
+        pomelo.request("area.manorHandler.manorGainHorse", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //打造护符
+      var manorStartHufu = function() {
+        pomelo.request("area.manorHandler.manorStartHufu", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //收取护符
+      var manorGainHufu = function() {
+        pomelo.request("area.manorHandler.manorGainHufu", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //购买军令
+      var manorBuyAction = function() {
+        pomelo.request("area.manorHandler.manorBuyAction", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战首领
+      var manorBoss = function() {
+        pomelo.request("area.manorHandler.manorBoss", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战山贼
+      var manorMon = function(monId) {
+        pomelo.request("area.manorHandler.manorMon", {monId:monId}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取特殊地点数据
+      var manorCityInfos = function() {
+        pomelo.request("area.manorHandler.manorCityInfos", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //占领特殊地点
+      var manorOccupyCity = function(land) {
+        pomelo.request("area.manorHandler.manorOccupyCity", {land:land}, function(data) {
+            console.log(data);
+        });
+      }
+      //放弃特殊地点
+      var manorGiveUp = function(grid) {
+        pomelo.request("area.manorHandler.manorGiveUp", {grid:grid}, function(data) {
+            console.log(data);
+        });
+      }
+      //搜寻玩家
+      var manorFindUser = function() {
+        pomelo.request("area.manorHandler.manorFindUser", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //占领玩家
+      var manorOccupyUser = function(target) {
+        pomelo.request("area.manorHandler.manorOccupyUser", {target:target}, function(data) {
+            console.log(data);
+        });
+      }
+      //反击
+      var manorRevolt = function() {
+        pomelo.request("area.manorHandler.manorRevolt", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //查看战报
+      var manorRerord = function() {
+        pomelo.request("area.manorHandler.manorRerord", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //点票支付
+      var dianpiao_recharge = function(pay_id) {
+        pomelo.request("area.activityHandler.dianpiao_recharge", {pay_id:pay_id}, function(data) {
+            console.log(data);
+        });
+      }
+      //===============新公会PK=========//
+      // 报名PK
+      var applyGuildPKRival = function() {
+        pomelo.request("cross.guildPkHandler.applyGuildPKRival", {}, function(data) {
+            console.log(data);
+        });
+      }
+      // 匹配公会
+      var matchGuildPKRival = function() {
+        pomelo.request("cross.guildPkHandler.matchGuildPKRival", {}, function(data) {
+            console.log(data);
+        });
+      }
+      // 结算PK
+      var guildPkSettle = function() {
+        pomelo.request("cross.guildPkHandler.guildPkSettle", {}, function(data) {
+            console.log(data);
+        });
+      }
+      
+      // 获取PK信息
+      var getGuildPKInfo = function() {
+        pomelo.request("cross.guildPkHandler.getGuildPKInfo", {}, function(data) {
+            console.log(data);
+        });
+      }
+      // 获取挑战记录
+      var getGuildPKRecord = function(guildId,index) {
+        pomelo.request("cross.guildPkHandler.getGuildPKRecord", {guildId:guildId,index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      // 挑战对手
+      var challengeGuildPk = function(index,star) {
+        pomelo.request("cross.guildPkHandler.challengeGuildPk", {index:index,star:star}, function(data) {
+            console.log(data);
+        });
+      }
+      //============新公会攻城战=========//
+      // 城池BOSS刷新
+      var createGuildCityBoss = function() {
+        pomelo.request("area.guildHandler.createGuildCityBoss", {}, function(data) {
+            console.log(data);
+        });
+      }
+      // 获取攻城战信息
+      var getGuildCityBossData = function() {
+        pomelo.request("area.guildHandler.getGuildCityBossData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      // 挑战攻城战BOSS
+      var challengeGuildCityBoss = function(index) {
+        pomelo.request("area.guildHandler.challengeGuildCityBoss", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      // 获取城池信息(个人排行榜,公会排行榜)
+      var getGuildCityBossInfo = function(index) {
+        pomelo.request("area.guildHandler.getGuildCityBossInfo", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+
+      //测试基准战力
+      var testStandardTeam = function(list,dl,lv) {
+        pomelo.request("area.normalHandler.testStandardTeam", {list:list,dl:dl,lv:lv}, function(data) {
+            console.log(data);
+        });
+      }
+      //升级官职
+      var promotionOfficer = function() {
+        pomelo.request("area.normalHandler.promotionOfficer", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //============战法=========//
+      //战法列表
+      var getZhanfaList = function() {
+        pomelo.request("area.zhanfaHandler.getZhanfaList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获得随机战法
+      var gainRandZhanfa = function() {
+        pomelo.request("area.zhanfaHandler.gainRandZhanfa", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获得指定战法
+      var gainSpecialZhanfa = function(zId) {
+        pomelo.request("area.zhanfaHandler.gainSpecialZhanfa", {zId:zId}, function(data) {
+            console.log(data);
+        });
+      }
+      //穿戴战法
+      var wearZhanfa = function(zId,hId,index) {
+        pomelo.request("area.zhanfaHandler.wearZhanfa", {zId:zId,hId:hId,index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //卸下战法
+      var unwearZhanfa = function(hId,index) {
+        pomelo.request("area.zhanfaHandler.unwearZhanfa", {hId:hId,index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //解锁战法栏
+      var unlockZhanfaGrid = function(target,index,hIds) {
+        pomelo.request("area.heroHandler.unlockZhanfaGrid", {target:target,index:index,hIds:hIds}, function(data) {
+            console.log(data);
+        });
+      }
+      //============远古战场=========//
+      //获取排行榜
+      var getAncientRank = function() {
+        pomelo.request("cross.ancientHandler.getAncientRank", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取历史挑战记录
+      var getAncientRecord = function() {
+        pomelo.request("cross.ancientHandler.getAncientRecord", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取我的数据
+      var getAncientData = function() {
+        pomelo.request("cross.ancientHandler.getAncientData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取宝箱
+      var gainAncientBox = function(index) {
+        pomelo.request("cross.ancientHandler.gainAncientBox", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //设置阵容
+      var ancientSetFightTeams = function(hIds) {
+        pomelo.request("cross.ancientHandler.ancientSetFightTeams", {hIds:hIds}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取目标列表
+      var ancientGetTargetList = function() {
+        pomelo.request("cross.ancientHandler.ancientGetTargetList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //开始挑战
+      var ancientChallenge = function(targetUid,targetInfo) {
+        pomelo.request("cross.ancientHandler.ancientChallenge", {targetUid:targetUid,targetInfo:targetInfo}, function(data) {
+            console.log(data);
+        });
+      }
+      //============极限挑战=========//
+      //获取极限挑战数据
+     var getExtremityData = function() {
+        pomelo.request("area.extremityHandler.getExtremityData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取极限挑战战斗数据
+     var getExtremityFight = function() {
+        pomelo.request("area.extremityHandler.getExtremityFight", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战BOSS
+     var extremityChallenge = function() {
+        pomelo.request("area.extremityHandler.extremityChallenge", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取排行榜
+     var getExtremityRank = function() {
+        pomelo.request("area.extremityHandler.getExtremityRank", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //============无尽试炼=========//
+      //获取无尽试炼数据
+      var getEndlessData = function() {
+        pomelo.request("area.fightHandler.getEndlessData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取无尽试炼种子
+      var getEndlessSeededList = function() {
+        pomelo.request("area.fightHandler.getEndlessSeededList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战单人试炼
+      var challengeOneEndless = function(hIds,id,seededList,index,verifys) {
+        pomelo.request("area.fightHandler.challengeOneEndless", {hIds:hIds,id:id,seededList:seededList,index:index,verifys:verifys}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战三人试炼
+      var challengeThreeEndless = function(hIds,id,seededList,index,verifys) {
+        pomelo.request("area.fightHandler.challengeThreeEndless", {hIds:hIds,id:id,seededList:seededList,index:index,verifys:verifys}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取排行榜
+      var getEndlessRank = function() {
+        pomelo.request("area.fightHandler.getEndlessRank", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //============沙盘演武=========//
+      //获取演武数据
+      var getExerciseData = function() {
+        pomelo.request("area.exerciseHandler.getExerciseData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //选择难度
+      var exerciseChooseLevel = function(level) {
+        pomelo.request("area.exerciseHandler.exerciseChooseLevel", {level:level}, function(data) {
+            console.log(data);
+        });
+      }
+      //开始挑战
+      var exerciseChallenge = function(team,index) {
+        pomelo.request("area.exerciseHandler.exerciseChallenge", {team:team,index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取宝箱
+      var exerciseAward = function(index) {
+        pomelo.request("area.exerciseHandler.exerciseAward", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //复活
+      var exerciseResurgence = function() {
+        pomelo.request("area.exerciseHandler.exerciseResurgence", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //============无双争霸=========//
+      //获取数据
+      var getBeherrscherInfo = function() {
+        pomelo.request("area.beherrscherHandler.getBeherrscherInfo", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战
+      var challengeBeherrscher = function(index) {
+        pomelo.request("area.beherrscherHandler.challengeBeherrscher", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取挑战记录
+      var getBeherrscherRecord = function(index) {
+        pomelo.request("area.beherrscherHandler.getBeherrscherRecord", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //清除CD 
+      var clearBeherrscherCD = function() {
+        pomelo.request("area.beherrscherHandler.clearBeherrscherCD", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //============好友系统=========//
+      //好友列表
+      var getFriendList = function() {
+        pomelo.request("area.friendHandler.getFriendList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //ID搜索
+      var searchFriendById = function(target) {
+        pomelo.request("area.friendHandler.searchFriendById", {target:target}, function(data) {
+            console.log(data);
+        });
+      }
+      //换一批好友
+      var searchFriendBatch = function() {
+        pomelo.request("area.friendHandler.searchFriendBatch", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //申请列表
+      var getApplyFriendList = function() {
+        pomelo.request("area.friendHandler.getApplyFriendList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //请求添加
+      var applyAddFriend = function(target) {
+        pomelo.request("area.friendHandler.applyAddFriend", {target:target}, function(data) {
+            console.log(data);
+        });
+      }
+      //同意申请
+      var agreeAddFriend = function(target) {
+        pomelo.request("area.friendHandler.agreeAddFriend", {target:target}, function(data) {
+            console.log(data);
+        });
+      }
+      //拒绝申请
+      var refuseAddFriend = function(list) {
+        pomelo.request("area.friendHandler.refuseAddFriend", {list:list}, function(data) {
+            console.log(data);
+        });
+      }
+      //删除好友
+      var delFriend = function(target) {
+        pomelo.request("area.friendHandler.delFriend", {target:target}, function(data) {
+            console.log(data);
+        });
+      }
+      //赠送礼物
+      var sendFriendGift = function(list) {
+        pomelo.request("area.friendHandler.sendFriendGift", {list:list}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取礼物
+      var gainFriendGift = function(list) {
+        pomelo.request("area.friendHandler.gainFriendGift", {list:list}, function(data) {
+            console.log(data);
+        });
+      }
+      //============形象相关=========//
+      //设置头像
+      var changeHead = function(id) {
+        pomelo.request("area.showHandler.changeHead", {id : id}, function(data) {
+            console.log(data);
+        });
+      }
+      //设置形象
+      var changeFigure = function(id) {
+        pomelo.request("area.showHandler.changeFigure", {id : id}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取称号列表
+      var getUserTitleList = function() {
+        pomelo.request("area.showHandler.getUserTitleList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获得称号
+      var gainUserTitle = function(id) {
+        pomelo.request("area.showHandler.gainUserTitle", {id : id}, function(data) {
+            console.log(data);
+        });
+      }
+      //改变称号
+      var changeUserTitle = function(id) {
+        pomelo.request("area.showHandler.changeUserTitle", {id : id}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取头像框列表
+      var getUserFrameList = function() {
+        pomelo.request("area.showHandler.getUserFrameList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获得头像框
+      var gainUserFrame = function(id) {
+        pomelo.request("area.showHandler.gainUserFrame", {id : id}, function(data) {
+            console.log(data);
+        });
+      }
+      //改变头像框
+      var changeUserFrame = function(id) {
+        pomelo.request("area.showHandler.changeUserFrame", {id : id}, function(data) {
+            console.log(data);
+        });
+      }
+      //激活英雄皮肤
+      var gainHeroSkin = function(id) {
+        pomelo.request("area.showHandler.gainHeroSkin", {id : id}, function(data) {
+            console.log(data);
+        });
+      }
+      //改变英雄皮肤
+      var changeHeroSkin = function(hId,index) {
+        pomelo.request("area.showHandler.changeHeroSkin", {hId : hId,index : index}, function(data) {
+            console.log(data);
+        });
+      }
+      //提交建议
+      var submitAdvise = function(text) {
+        pomelo.request("area.showHandler.submitAdvise", {text : text}, function(data) {
+            console.log(data);
+        });
+      }
+      //==============护符==========//
+      //护符列表
+      var getHufuList = function() {
+        pomelo.request("area.hufuHandler.getHufuList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //生成随机护符
+      var gainRandHufu = function(lv) {
+        pomelo.request("area.hufuHandler.gainRandHufu", {lv:lv}, function(data) {
+            console.log(data);
+        });
+      }
+      //生成指定护符  lv s1 s2
+      var gainHufu = function(info) {
+        pomelo.request("area.hufuHandler.gainHufu", {info:info}, function(data) {
+            console.log(data);
+        });
+      }
+      //穿戴护符
+      var wearHufu = function(hId,id) {
+        pomelo.request("area.hufuHandler.wearHufu", {hId:hId,id:id}, function(data) {
+            console.log(data);
+        });
+      }
+      //卸下护符
+      var unwearHufu = function(hId) {
+        pomelo.request("area.hufuHandler.unwearHufu", {hId:hId}, function(data) {
+            console.log(data);
+        });
+      }
+      //合成护符
+      var compoundHufu = function(ids,lv) {
+        pomelo.request("area.hufuHandler.compoundHufu", {ids:ids,lv:lv}, function(data) {
+            console.log(data);
+        });
+      }
+      //洗练护符
+      var resetHufu = function(ids,lv) {
+        pomelo.request("area.hufuHandler.resetHufu", {ids:ids,lv:lv}, function(data) {
+            console.log(data);
+        });
+      }
+      //洗练石洗练
+      var washHufu = function(id) {
+        pomelo.request("area.hufuHandler.washHufu", {id:id}, function(data) {
+            console.log(data);
+        });
+      }
+      //出售护符
+      var sellHufu = function(id) {
+        pomelo.request("area.hufuHandler.sellHufu", {id:id}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取玩家基本信息
+      var getPlayerBaseInfo = function(target) {
+        pomelo.request("area.normalHandler.getPlayerBaseInfo", {target:target}, function(data) {
+            console.log(data);
+        });
+      }
+      //==============限时活动==========//
+      //开启限时活动
+      var openNewLimitedTime = function(id,day) {
+        pomelo.request("area.normalHandler.openNewLimitedTime", {id:id,day:day}, function(data) {
+            console.log(data);
+        });
+      }
+      //关闭限时活动
+      var endNewLimitedTime = function(id) {
+        pomelo.request("area.normalHandler.endNewLimitedTime", {id:id}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取限时活动列表
+      var getLimitedTimeList = function() {
+        pomelo.request("area.normalHandler.getLimitedTimeList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //==============公会PK==========//
+      //获取PK数据
+      var getGuildPKData = function() {
+        pomelo.request("area.guildHandler.getGuildPKData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取单路数据
+      var getGuildPKRecord = function(path) {
+        pomelo.request("area.guildHandler.getGuildPKRecord", {path:path}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取战斗数据
+      var getGuildPKFight = function(path,index) {
+        pomelo.request("area.guildHandler.getGuildPKFight", {path:path,index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //报名
+      var applyGuildPK = function() {
+        pomelo.request("area.guildHandler.applyGuildPK", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //派遣队伍
+      var sendGuildPKTeam = function(teamId,path) {
+        pomelo.request("area.guildHandler.sendGuildPKTeam", {teamId:teamId,path:path}, function(data) {
+            console.log(data);
+        });
+      }
+      //撤回队伍
+      var cancelGuildPKTeam = function(teamId) {
+        pomelo.request("area.guildHandler.cancelGuildPKTeam", {teamId:teamId}, function(data) {
+            console.log(data);
+        });
+      }
+      //公会PK匹配
+      var matchGuildPKRival = function() {
+        pomelo.request("cross.crossHandler.matchGuildPKRival", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //公会PK战斗
+      var beginGuildPKTable = function() {
+        pomelo.request("cross.crossHandler.beginGuildPKTable", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //==============公会攻城战==========//
+      //报名城池
+      var applyGuildCity = function(cityId) {
+        pomelo.request("area.guildHandler.applyGuildCity", {cityId:cityId}, function(data) {
+            console.log(data);
+        });
+      }
+      //组建队伍
+      var buildGuildTeam = function() {
+        pomelo.request("area.heroHandler.getHeros", {}, function(data) {
+          var hIds = []
+          for(var i in data.data){
+            hIds.push(i)
+          }
+          var teamNum = Math.ceil(hIds.length/6) * 6
+          for(var i = 0;i < teamNum;i++)
+            if(!hIds[i])
+              hIds[i] = 0
+          pomelo.request("area.guildHandler.buildGuildTeam", {hIds:hIds}, function(data) {
+            console.log("buildGuildTeam",data)
+          });
+        });
+      }
+      //队伍列表
+      var getGuildTeam = function() {
+        pomelo.request("area.guildHandler.getGuildTeam", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //派遣队伍
+      var sendGuildCityTeam = function(cityId,teamId) {
+        pomelo.request("area.guildHandler.sendGuildCityTeam", {cityId:cityId,teamId:teamId}, function(data) {
+            console.log(data);
+        });
+      }
+      //撤回队伍
+      var cancelGuildCityTeam = function(teamId) {
+        pomelo.request("area.guildHandler.cancelGuildCityTeam", {teamId:teamId}, function(data) {
+            console.log(data);
+        });
+      }
+      //攻城
+      var guildCityBeginFight = function() {
+        pomelo.request("area.guildHandler.guildCityBeginFight", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //开始攻城
+      var guildOneCityFight = function(cityId) {
+        pomelo.request("area.guildHandler.guildOneCityFight", {cityId:cityId}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取攻城战数据
+      var getGuildCityData = function() {
+        pomelo.request("area.guildHandler.getGuildCityData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取城池数据
+      var getGuildCityRecord = function(cityId) {
+        pomelo.request("area.guildHandler.getGuildCityRecord", {cityId:cityId}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取战斗数据
+      var getGuildCityFight = function(cityId,index) {
+        pomelo.request("area.guildHandler.getGuildCityFight", {cityId:cityId,index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取每日奖励
+      var gainGuildCityAward = function() {
+        pomelo.request("area.guildHandler.gainGuildCityAward", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //==============公会宝藏BOSS==========//
+      //获取宝藏BOSS数据
+     var getAuctionData = function() {
+        pomelo.request("area.guildHandler.getAuctionData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战宝藏BOSS
+     var challengeTreasureBoss = function() {
+        pomelo.request("area.guildHandler.challengeTreasureBoss", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取竞拍列表
+     var getAuctionList = function() {
+        pomelo.request("area.guildHandler.getAuctionList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //举牌竞拍
+     var upForAuction = function(index,price) {
+        pomelo.request("area.guildHandler.upForAuction", {index:index,price:price}, function(data) {
+            console.log(data);
+        });
+      }
+      //==============公会副本==========//
+      //获取当前副本数据
+      var getGuildFBData = function() {
+        pomelo.request("area.guildHandler.getGuildFBData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取历史副本数据
+      var getHistoryGuildFB = function(fbId) {
+        pomelo.request("area.guildHandler.getHistoryGuildFB", {fbId:fbId}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战副本
+      var challengeGuildFB = function(fbId) {
+        pomelo.request("area.guildHandler.challengeGuildFB", {fbId:fbId}, function(data) {
+            console.log(data);
+        });
+      }
+      //购买公会副本挑战次数
+      var buyGuildFBCount = function() {
+        pomelo.request("area.guildHandler.buyGuildFBCount", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //==============公会==========//
+      //添加红包
+      var addGuildGift = function(guildId,title,maxNum,amount,time) {
+        pomelo.request("area.guildHandler.addGuildGift", {guildId:guildId,title:title,maxNum:maxNum,amount:amount,time:time}, function(data) {
+            console.log(data);
+        });
+      }
+      //删除公会红包
+      var removeGuildGift = function(guildId,giftId) {
+        pomelo.request("area.guildHandler.removeGuildGift", {guildId:guildId,giftId:giftId}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取公会红包列表
+      var getGuildGiftList = function() {
+        pomelo.request("area.guildHandler.getGuildGiftList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取公会红包详情
+      var getGuildGiftDetails = function(giftId) {
+        pomelo.request("area.guildHandler.getGuildGiftDetails", {giftId:giftId}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取公会红包
+      var gainGuildGift = function(giftId) {
+        pomelo.request("area.guildHandler.gainGuildGift", {giftId:giftId}, function(data) {
+            console.log(data);
+        });
+      }
+      //弹劾盟主
+      var impeachLead = function() {
+        pomelo.request("area.guildHandler.impeachLead", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //创建公会
+      var createGuild = function(name) {
+        pomelo.request("area.guildHandler.createGuild", {name:name}, function(data) {
+            console.log(data);
+        });
+      }
+      //解散公会
+      var dissolveGuild = function() {
+        pomelo.request("area.guildHandler.dissolveGuild", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //设置公告
+      var setGuildNotify = function(notify) {
+        pomelo.request("area.guildHandler.setGuildNotify", {notify:notify}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取我的公会信息
+      var getMyGuild = function() {
+        pomelo.request("area.guildHandler.getMyGuild", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取公会成员
+      var getMyGuildUsers = function() {
+        pomelo.request("area.guildHandler.getMyGuildUsers", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取公会列表
+      var getGuildList = function() {
+        pomelo.request("area.guildHandler.getGuildList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //申请加入公会
+      var applyJoinGuild = function(guildId) {
+        pomelo.request("area.guildHandler.applyJoinGuild", {guildId:guildId}, function(data) {
+            console.log(data);
+        });
+      }
+      //获得申请列表
+      var getGuildApplyList = function() {
+        pomelo.request("area.guildHandler.getGuildApplyList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //同意申请
+      var agreeGuildApply = function(targetUid) {
+        pomelo.request("area.guildHandler.agreeGuildApply", {targetUid:targetUid}, function(data) {
+            console.log(data);
+        });
+      }
+      //拒绝申请
+      var refuseGuildApply = function(targetUid) {
+        pomelo.request("area.guildHandler.refuseGuildApply", {targetUid:targetUid}, function(data) {
+            console.log(data);
+        });
+      }
+      //退出公会
+      var quitGuild = function() {
+        pomelo.request("area.guildHandler.quitGuild", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //设置成副会长
+      var setGuildDeputy = function(targetUid) {
+        pomelo.request("area.guildHandler.setGuildDeputy", {targetUid:targetUid}, function(data) {
+            console.log(data);
+        });
+      }
+      //设置成普通成员
+      var setGuildNormal = function(targetUid) {
+        pomelo.request("area.guildHandler.setGuildNormal", {targetUid:targetUid}, function(data) {
+            console.log(data);
+        });
+      }
+      //设置成会长
+      var setGuildLead = function(targetUid) {
+        pomelo.request("area.guildHandler.setGuildLead", {targetUid:targetUid}, function(data) {
+            console.log(data);
+        });
+      }
+      //公会日志
+      var getGuildLog = function() {
+        pomelo.request("area.guildHandler.getGuildLog", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //请离玩家
+      var kickGuildNormal = function(targetUid) {
+        pomelo.request("area.guildHandler.kickGuildNormal", {targetUid:targetUid}, function(data) {
+            console.log(data);
+        });
+      }
+      //签到
+      var signInGuild = function(sign) {
+        pomelo.request("area.guildHandler.signInGuild", {sign:sign}, function(data) {
+            console.log(data);
+        });
+      }
+      //升级公会技能
+      var upGuildSkill = function(career) {
+        pomelo.request("area.guildHandler.upGuildSkill", {career:career}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取公会排行榜
+      var getGuildRank = function() {
+        pomelo.request("area.guildHandler.getGuildRank", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //设置审核状态
+      var setGuildAudit = function(audit,lv_limit) {
+        pomelo.request("area.guildHandler.setGuildAudit", {audit:audit,lv_limit:lv_limit}, function(data) {
+            console.log(data);
+        });
+      }
+      //=============牧野之战=======//
+      //赛季结算
+      var settleMuye = function() {
+        pomelo.request("cross.muyeHandler.settleMuye", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //加入阵营
+      var muyeJoinCamp = function(camp) {
+        pomelo.request("cross.muyeHandler.muyeJoinCamp", {camp:camp}, function(data) {
+            console.log(data);
+        });
+      }
+      //随机阵营
+      var muyeRandCamp = function() {
+        pomelo.request("cross.muyeHandler.muyeRandCamp", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取排行榜
+      var getMuyeRank = function(camp) {
+        pomelo.request("cross.muyeHandler.getMuyeRank", {camp:camp}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取历史挑战记录
+      var getMuyeRecord = function() {
+        pomelo.request("cross.muyeHandler.getMuyeRecord", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取我的数据
+      var getMuyeData = function() {
+        pomelo.request("cross.muyeHandler.getMuyeData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //点赞
+      var muyeLike = function(index) {
+        pomelo.request("cross.muyeHandler.muyeLike", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取宝箱
+      var gainMuyeBox = function(index) {
+        pomelo.request("cross.muyeHandler.gainMuyeBox", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //设置阵容
+      var muyeSetFightTeams = function(hIds) {
+        pomelo.request("cross.muyeHandler.muyeSetFightTeams", {hIds:hIds}, function(data) {
+            console.log(data);
+        });
+      }
+      //匹配战斗
+      var matchMuye = function() {
+        pomelo.request("cross.muyeHandler.matchMuye", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //=============巅峰赛=======//
+      //开始新赛程
+      var peakBegin = function() {
+        pomelo.request("cross.peakHandler.peakBegin", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //下一阶段
+      var peakNextState = function() {
+        pomelo.request("cross.peakHandler.peakNextState", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取巅峰赛数据
+      var getPeakData = function() {
+        pomelo.request("cross.peakHandler.getPeakData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //同步阵容
+      var peakSyncFightTeam = function() {
+        pomelo.request("cross.peakHandler.peakSyncFightTeam", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取对阵选手信息
+      var getPeakParticipantsInfo = function() {
+        pomelo.request("cross.peakHandler.getPeakParticipantsInfo", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //下注
+      var peakUserBetting = function(target,bet) {
+        pomelo.request("cross.peakHandler.peakUserBetting", {target:target,bet:bet}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取当前下注信息
+      var getPeakBetInfo = function() {
+        pomelo.request("cross.peakHandler.getPeakBetInfo", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //查询历史下注信息
+      var getPeakBetHistory = function() {
+        pomelo.request("cross.peakHandler.getPeakBetHistory", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //查看指定比赛记录
+      var getPeakMatchHistory = function(round,target) {
+        pomelo.request("cross.peakHandler.getPeakMatchHistory", {round:round,target:target}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取上一赛季比赛记录
+      var getPeakHonorHistory = function(round,target) {
+        pomelo.request("cross.peakHandler.getPeakHonorHistory", {round:round,target:target}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取我的比赛记录
+      var getPeakMyMatch = function() {
+        pomelo.request("cross.peakHandler.getPeakMyMatch", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取小组赛记录
+      var getPeakGrounpHistory = function(num) {
+        pomelo.request("cross.peakHandler.getPeakGrounpHistory", {num : num}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取本赛季八强记录
+      var getPeakBetterHistory = function() {
+        pomelo.request("cross.peakHandler.getPeakBetterHistory", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //点赞
+      var peakLike = function(index) {
+        pomelo.request("cross.peakHandler.peakLike", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取上一赛季比赛记录
+      var getHonorMathch = function() {
+        pomelo.request("cross.peakHandler.getHonorMathch", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //=============节日活动=======//
+      //获取活动数据
+      var getFestivalData = function() {
+        pomelo.request("area.festivalHandler.getFestivalData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //每日奖励
+      var gainFestivalDayAward = function() {
+        pomelo.request("area.festivalHandler.gainFestivalDayAward", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战boss
+      var challengeFestivalBoss = function() {
+        pomelo.request("area.festivalHandler.challengeFestivalBoss", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取摇钱树奖励列表
+      var getFestivalTreeList = function() {
+        pomelo.request("area.festivalHandler.getFestivalTreeList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //结算摇钱树奖励
+      var gainFestivalTreeAward = function(count) {
+        pomelo.request("area.festivalHandler.gainFestivalTreeAward", {count:count}, function(data) {
+            console.log(data);
+        });
+      }
+      //==============天书==========//
+      //获取天书数据
+      var getBookData = function() {
+        pomelo.request("area.bookHandler.getBookData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //激活天书
+      var activateBook = function(bookType) {
+        pomelo.request("area.bookHandler.activateBook", {bookType:bookType}, function(data) {
+            console.log(data);
+        });
+      }
+      //升级天书
+      var upgradeBookLv = function(bookType) {
+        pomelo.request("area.bookHandler.upgradeBookLv", {bookType:bookType}, function(data) {
+            console.log(data);
+        });
+      }
+      //升星天书
+      var upgradeBookStar = function(bookType) {
+        pomelo.request("area.bookHandler.upgradeBookStar", {bookType:bookType}, function(data) {
+            console.log(data);
+        });
+      }
+      //重生天书
+      var resetBook = function(bookType) {
+        pomelo.request("area.bookHandler.resetBook", {bookType:bookType}, function(data) {
+            console.log(data);
+        });
+      }
+      //设置上阵天书
+      var setBookFight = function(list) {
+        pomelo.request("area.bookHandler.setBookFight", {list:list}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取上阵天书
+      var getFightBook = function() {
+        pomelo.request("area.bookHandler.getFightBook", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取玩家unionid
+      var getUnionIdByUid = function(uid) {
+        pomelo.request("admin.adminHandler.getUnionIdByUid", {uid:uid}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战试炼
+      var areaTrial = function(verifys) {
+        pomelo.request("area.activityHandler.areaTrial", {verifys:verifys}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战阵营塔
+      var challengeRealmBoss = function(realm,heros) {
+        pomelo.request("area.tttHandler.challengeRealmBoss", {realm:realm,heros:heros,seededNum:Date.now()}, function(data) {
+            console.log(data);
+        });
+      }
+      //扫荡阵营塔
+      var realmMopup = function(realm) {
+        pomelo.request("area.tttHandler.realmMopup", {realm:realm}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取矿坑数据
+      var getPitData = function() {
+        pomelo.request("area.stoneHandler.getPitData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //挖矿
+      var usePickaxe = function(pos,pId) {
+        pomelo.request("area.stoneHandler.usePickaxe", {pos:pos,pId:pId}, function(data) {
+            console.log(data);
+        });
+      }
+      //加速
+      var speedPit = function(pos) {
+        pomelo.request("area.stoneHandler.speedPit", {pos:pos}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取挖矿收益
+      var gainPitAward = function(pos) {
+        pomelo.request("area.stoneHandler.gainPitAward", {pos:pos}, function(data) {
+            console.log(data);
+        });
+      }
+
+      //穿戴宝石
+      var wearStone = function(hId,itemId,pos) {
+        pomelo.request("area.stoneHandler.wearStone", {itemId:itemId,hId:hId,pos:pos}, function(data) {
+            console.log(data);
+        });
+      }
+      //卸下宝石
+      var unwearStone = function(hId,pos) {
+        pomelo.request("area.stoneHandler.unwearStone", {hId:hId,pos:pos}, function(data) {
+            console.log(data);
+        });
+      }
+      //升级宝石
+      var upStone = function(hId,items,pos) {
+        pomelo.request("area.stoneHandler.upStone", {items:items,hId:hId,pos:pos}, function(data) {
+            console.log(data);
+        });
+      }
+      //保存分享数据
+      var saveShareData = function(data) {
+        pomelo.request("area.shareHandler.saveShareData", {data:data}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取分享数据
+      var getShareData = function(shareId) {
+        pomelo.request("area.shareHandler.getShareData", {shareId:shareId}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战魔物入侵
+      var challengeInvade = function() {
+        pomelo.request("area.activityHandler.challengeInvade", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //开启无限资源
+      var openWuxian = function(wuxianId) {
+        pomelo.request("area.activityHandler.openWuxian", {wuxianId:wuxianId}, function(data) {
+            console.log(data);
+        });
+      }
+      //开启累充无限资源
+      var openWuxianByRmb = function(wuxianId) {
+        pomelo.request("area.activityHandler.openWuxianByRmb", {wuxianId:wuxianId}, function(data) {
+            console.log(data);
+        });
+      }
+      //征税
+      var revenueCoin = function(type) {
+        pomelo.request("area.activityHandler.revenueCoin", {type:type}, function(data) {
+            console.log(data);
+        });
+      }
+      //==============山海秘境==========//
+      //获取关卡数据
+      var getMysteriousData = function() {
+        pomelo.request("area.mysteriousHandler.getMysteriousData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战关卡
+      var challengeMysterious = function(lv,verify) {
+        pomelo.request("area.mysteriousHandler.challengeMysterious", {lv:lv,verify:verify}, function(data) {
+            console.log(data);
+        });
+      }
+      //扫荡关卡
+      var mopupMysterious = function(lv) {
+        pomelo.request("area.mysteriousHandler.mopupMysterious", {lv:lv}, function(data) {
+            console.log(data);
+        });
+      }
+      //购买次数
+      var buyMysteriousCount = function() {
+        pomelo.request("area.mysteriousHandler.buyMysteriousCount", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取章节宝箱
+      var gaintMysteriousBox = function(chapter,index) {
+        pomelo.request("area.mysteriousHandler.gaintMysteriousBox", {chapter:chapter,index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取排行榜
+      var getMysteriousRank = function() {
+        pomelo.request("area.mysteriousHandler.getMysteriousRank", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //==============主题招募==========//
+      //获取主题招募数据
+      var getTopicRecruitData = function() {
+        pomelo.request("area.recruitHandler.getTopicRecruitData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //主题招募一次
+      var topicRecruitOnce = function() {
+        pomelo.request("area.recruitHandler.topicRecruitOnce", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //主题招募十次
+      var topicRecruitMultiple = function() {
+        pomelo.request("area.recruitHandler.topicRecruitMultiple", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取主题招募奖励
+      var gainTopicRecruitBoxAward = function(index) {
+        pomelo.request("area.recruitHandler.gainTopicRecruitBoxAward", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //充值天数礼包
+      var gainRPayDaysAward = function(id) {
+        pomelo.request("area.activityHandler.gainRPayDaysAward", {id:id}, function(data) {
+            console.log(data);
+        });
+      }
+      //每日免费礼包
+      var gainFreeDayAward = function(id) {
+        pomelo.request("area.activityHandler.gainFreeDayAward", {id:id}, function(data) {
+            console.log(data);
+        });
+      }
+      //每日首充礼包
+      var gainRechargeDayAward = function(id) {
+        pomelo.request("area.activityHandler.gainRechargeDayAward", {id:id}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取每周累充奖励
+      var gainRechargeWeekAward = function(id) {
+        pomelo.request("area.activityHandler.gainRechargeWeekAward", {id:id}, function(data) {
+            console.log(data);
+        });
+      }
+      //==============挑战山海==========//
+      //获取挑战山海数据数据
+      var getAreaChallengeData = function() {
+        pomelo.request("area.activityHandler.getAreaChallengeData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战单骑救主
+      var areaChallenge = function(hId) {
+        pomelo.request("area.activityHandler.areaChallenge", {hId:hId}, function(data) {
+            console.log(data);
+        });
+      }
+      //==============限时礼包==========//
+      //获取限时礼包数据
+      var getLimitGiftData = function() {
+        pomelo.request("area.activityHandler.getLimitGiftData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //购买限时礼包
+      var buyLimitGift = function(id) {
+        pomelo.request("area.activityHandler.buyLimitGift", {id,id}, function(data) {
+            console.log(data);
+        });
+      }
+      //==============元神抽奖==========//
+      //获取元神抽奖数据
+      var getaceLottoData = function() {
+        pomelo.request("area.aceLottoHandler.getaceLottoData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //免费元神抽奖
+      var aceLottoFree = function() {
+        pomelo.request("area.aceLottoHandler.aceLottoFree", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //单次元神抽奖
+      var aceLottoOnce = function() {
+        pomelo.request("area.aceLottoHandler.aceLottoOnce", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //十连元神抽奖
+      var aceLottoMultiple = function() {
+        pomelo.request("area.aceLottoHandler.aceLottoMultiple", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //==============寻宝==========//
+      //获取寻宝数据
+      var getSTData = function() {
+        pomelo.request("area.stHandler.getSTData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取寻宝记录
+      var getSTRecord = function() {
+        pomelo.request("area.stHandler.getSTRecord", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //普通寻宝单次
+      var normalSTSeek = function() {
+        pomelo.request("area.stHandler.normalSTSeek", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //普通寻宝十五次
+      var normalSTMultiple = function() {
+        pomelo.request("area.stHandler.normalSTMultiple", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //免费刷新普通寻宝
+      var normalSTFreeRefresh = function() {
+        pomelo.request("area.stHandler.normalSTFreeRefresh", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //付费刷新普通寻宝
+      var normalSTBuyRefresh = function() {
+        pomelo.request("area.stHandler.normalSTBuyRefresh", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取普通寻宝幸运宝箱
+      var gainSTNormalBox = function(boxId) {
+        pomelo.request("area.stHandler.gainSTNormalBox", {boxId:boxId}, function(data) {
+            console.log(data);
+        });
+      }
+      //高级寻宝单次
+      var highSTSeek = function() {
+        pomelo.request("area.stHandler.highSTSeek", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //高级寻宝十五次
+      var highSTMultiple = function() {
+        pomelo.request("area.stHandler.highSTMultiple", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //免费刷新高级寻宝
+      var highSTFreeRefresh = function() {
+        pomelo.request("area.stHandler.highSTFreeRefresh", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //付费刷新高级寻宝
+      var highSTBuyRefresh = function() {
+        pomelo.request("area.stHandler.highSTBuyRefresh", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取高级寻宝幸运宝箱
+      var gainSTHighBox = function(boxId) {
+        pomelo.request("area.stHandler.gainSTHighBox", {boxId:boxId}, function(data) {
+            console.log(data);
+        });
+      }
+      //欧皇转盘
+      var ohLotto = function(count) {
+        pomelo.request("area.stHandler.ohLotto", {count:count}, function(data) {
+            console.log(data);
+        });
+      }
+      //兵法转盘
+      var bfLotto = function(count) {
+        pomelo.request("area.stHandler.bfLotto", {count:count}, function(data) {
+            console.log(data);
+        });
+      }
+      //==============奖励邮件==========//
+      //设置全服邮件
+      var setAreaMail = function(areaList,title,text,atts,time) {
+        pomelo.request("admin.adminHandler.setAreaMail", {areaList:areaList,title:title,text:text,atts:atts,time:time}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取全服邮件
+      var getAreaMailList = function(areaId) {
+        pomelo.request("admin.adminHandler.getAreaMailList", {areaId:areaId}, function(data) {
+            console.log(data);
+        });
+      }
+      //删除全服邮件
+      var deleteAreaMailList = function(areaId,id) {
+        pomelo.request("admin.adminHandler.deleteAreaMailList", {areaId:areaId,id:id}, function(data) {
+            console.log(data);
+        });
+      }
+      //查询玩家信息
+      var getPlayerInfo = function(areaId,uid) {
+        pomelo.request("admin.adminHandler.getPlayerInfo", {areaId:areaId,id:id}, function(data) {
+            console.log(data);
+        });
+      }
+      //发送个人邮件
+      var adminSendMail = function(areaId,uid,title,text,atts) {
+        pomelo.request("admin.adminHandler.adminSendMail", {areaId:areaId,uid:uid,title:title,text:text,atts:atts}, function(data) {
+            console.log(data);
+        });
+      }
+      //设置公告
+      var setNotify = function(notify) {
+        pomelo.request("admin.adminHandler.setNotify", {notify:notify}, function(data) {
+            console.log(data);
+        });
+      }
+      //直接充值
+      var rechargeToUser = function(uid,pay_id) {
+        pomelo.request("admin.adminHandler.rechargeToUser", {uid:uid,pay_id:pay_id}, function(data) {
+            console.log(data);
+        });
+      }
+      //==============礼包码============//
+      //创建礼包码类型
+      var createCDType = function(type,award,des) {
+        pomelo.request("admin.cdkeyHandler.createCDType", {type:type,award:award,des:des}, function(data) {
+            console.log(data);
+        });
+      }
+      //禁用礼包码类型
+      var pauseCDType = function(type) {
+        pomelo.request("admin.cdkeyHandler.pauseCDType", {type:type}, function(data) {
+            console.log(data);
+        });
+      }
+      //恢复礼包码类型
+      var resumeCDType = function(type) {
+        pomelo.request("admin.cdkeyHandler.resumeCDType", {type:type}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取礼包码类型表总页数
+      var getCDTypePage = function() {
+        pomelo.request("admin.cdkeyHandler.getCDTypePage", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取礼包码类型表一页数据
+      var getCDTypeList = function(dataNum) {
+        pomelo.request("admin.cdkeyHandler.getCDTypeList", {dataNum:dataNum}, function(data) {
+            console.log(data);
+        });
+      }
+      //生成礼包码
+      var createCDKey = function(type,num,count,expires) {
+        pomelo.request("admin.cdkeyHandler.createCDKey", {type:type,num:num,count:count,expires:expires}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取礼包码数据
+      var getCDKeyInfo = function(key) {
+        pomelo.request("admin.cdkeyHandler.getCDKeyInfo", {key:key}, function(data) {
+            console.log(data);
+        });
+      }
+      //激活礼包码
+      var verifyCDKey = function(key) {
+        pomelo.request("area.normalHandler.verifyCDKey", {key:key}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取聊天记录表表总页数
+      var getChatRecordPage = function() {
+        pomelo.request("admin.adminHandler.getChatRecordPage", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取聊天记录表表一页数据
+      var getChatRecordList = function(dataNum) {
+        pomelo.request("admin.adminHandler.getChatRecordList", {dataNum:dataNum}, function(data) {
+            console.log(data);
+        });
+      }
+      //==============活动==============//
+      //购买每日礼包
+      var buyAwardBagday = function(index) {
+        pomelo.request("area.activityHandler.buyAwardBagday", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取每周礼包与每月礼包购买记录
+      var getWeekAndMonthRecord = function() {
+        pomelo.request("area.activityHandler.getWeekAndMonthRecord", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //购买每周礼包
+      var buyAwardBagWeek = function(index) {
+        pomelo.request("area.activityHandler.buyAwardBagWeek", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //购买每月礼包
+      var buyAwardBagMonth = function(index) {
+        pomelo.request("area.activityHandler.buyAwardBagMonth", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取消耗活动奖励
+      var gainConsumeTotalAward = function(index) {
+        pomelo.request("area.activityHandler.gainConsumeTotalAward", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取功能开启奖励
+      var gainSysOpenAward = function(index) {
+        pomelo.request("area.activityHandler.gainSysOpenAward", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取冲榜活动排行榜
+      var getAreaRank = function() {
+        pomelo.request("area.activityHandler.getAreaRank", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取已结算排行榜
+      var getSprintSettleRank = function(rankType) {
+        pomelo.request("area.activityHandler.getSprintSettleRank", {rankType:rankType}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取总排行榜
+      var getTotalRank = function(rankType) {
+        pomelo.request("area.activityHandler.getTotalRank", {rankType:rankType}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取排名第一排行榜
+      var getfirstRankUserList = function() {
+        pomelo.request("area.activityHandler.getfirstRankUserList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取宗族第一排行榜
+      var getFirstGuildRank = function() {
+        pomelo.request("area.activityHandler.getFirstGuildRank", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取首充礼包
+      var gainFirstRechargeAward = function() {
+        pomelo.request("area.activityHandler.gainFirstRechargeAward", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取累充奖励
+      var gainRechargeTotalAward = function(index) {
+        pomelo.request("area.activityHandler.gainRechargeTotalAward", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取单充奖励
+      var gainRechargeOnceAward = function(index) {
+        pomelo.request("area.activityHandler.gainRechargeOnceAward", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取活动数据
+      var getActivityData = function() {
+        pomelo.request("area.activityHandler.getActivityData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //激活等级基金
+      var activateLvFund = function() {
+        pomelo.request("area.activityHandler.activateLvFund", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取等级奖励
+      var gainActivityLvAward = function(index) {
+        pomelo.request("area.activityHandler.gainActivityLvAward", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取天数奖励
+      var gainActivityDayAward = function(index) {
+        pomelo.request("area.activityHandler.gainActivityDayAward", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取战力奖励
+      var gainActivityCeAward = function(index) {
+        pomelo.request("area.activityHandler.gainActivityCeAward", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取普通月卡
+      var gainNormalCardAward = function() {
+        pomelo.request("area.activityHandler.gainNormalCardAward", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //激活专属月卡
+      var activateHighCard = function() {
+        pomelo.request("area.activityHandler.activateHighCard", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取专属月卡
+      var gainHighCardAward = function() {
+        pomelo.request("area.activityHandler.gainHighCardAward", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取VIP免费礼包
+      var gainVipAward = function(vip) {
+        pomelo.request("area.activityHandler.gainVipAward", {vip:vip}, function(data) {
+            console.log(data);
+        });
+      }
+      //购买VIP付费礼包
+      var buyVipAward = function(vip) {
+        pomelo.request("area.activityHandler.buyVipAward", {vip:vip}, function(data) {
+            console.log(data);
+        });
+      }
+      //获得活动数据
+      var buyVipAward = function(vip) {
+        pomelo.request("area.activityHandler.buyVipAward", {vip:vip}, function(data) {
+            console.log(data);
+        });
+      }
+      //签到
+      var gainSignInAward = function() {
+        pomelo.request("area.activityHandler.gainSignInAward", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取签到宝箱
+      var gainSignInBox = function(index) {
+        pomelo.request("area.activityHandler.gainSignInBox", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //在线奖励
+      var gainOnlineTimeAward = function() {
+        pomelo.request("area.activityHandler.gainOnlineTimeAward", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //申请充值
+      var apply_recharge = function(pay_id) {
+        pomelo.request("area.activityHandler.apply_recharge", {pay_id : pay_id}, function(data) {
+            console.log(data);
+        });
+      }
+      //测试充值
+      var test_recharge = function(pay_id) {
+        pomelo.request("area.activityHandler.test_recharge", {pay_id : pay_id}, function(data) {
+            console.log(data);
+        });
+      }
+      //============七日目标============//
+      //获取七日目标数据
+      var getWeekTargetData = function() {
+        pomelo.request("area.weekTargetHandler.getWeekTargetData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取七天登陆礼包
+      var gainLoginAward = function(day) {
+        pomelo.request("area.weekTargetHandler.gainLoginAward", {day : day}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取每日礼包
+      var gainDayAward = function(day) {
+        pomelo.request("area.weekTargetHandler.gainDayAward", {day : day}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取等级礼包
+      var gainLvAward = function(day) {
+        pomelo.request("area.weekTargetHandler.gainLvAward", {day : day}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取充值礼包
+      var gainRmbAward = function(day) {
+        pomelo.request("area.weekTargetHandler.gainRmbAward", {day : day}, function(data) {
+            console.log(data);
+        });
+      }
+      //购买限购礼包
+      var buyWeekTargetGoods = function(day,index) {
+        pomelo.request("area.weekTargetHandler.buyWeekTargetGoods", {day : day,index : index}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取七日任务宝箱
+      var gainWeekTargetBox = function(boxId) {
+        pomelo.request("area.weekTargetHandler.gainWeekTargetBox", {boxId : boxId}, function(data) {
+            console.log(data);
+        });
+      }
+
+      var getPlayerData = function() {
+        pomelo.request("area.normalHandler.getPlayerData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //改名
+      var changeName = function(name) {
+        pomelo.request("area.normalHandler.changeName", {name : name}, function(data) {
+            console.log(data);
+        });
+      }
+      //============开服计划============//
+      //获取服务器列表
+      var getServerList = function() {
+        pomelo.request("admin.adminHandler.getServerList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //暂停服务器
+      var pauseArea = function(areaId) {
+        pomelo.request("admin.adminHandler.pauseArea", {areaId : areaId}, function(data) {
+            console.log(data);
+        });
+      }
+      //恢复服务器
+      var resumeArea = function(areaId) {
+        pomelo.request("admin.adminHandler.resumeArea", {areaId : areaId}, function(data) {
+            console.log(data);
+        });
+      }
+      //设置开服计划
+      var setOpenPlan = function(time) {
+        pomelo.request("admin.adminHandler.setOpenPlan", {time : time}, function(data) {
+            console.log(data);
+        });
+      }
+      //删除开服计划
+      var delOpenPlan = function(time) {
+        pomelo.request("admin.adminHandler.delOpenPlan", {time : time}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取开服计划
+      var getOpenPlan = function() {
+        pomelo.request("admin.adminHandler.getOpenPlan", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //设置合服计划
+      var setMergePlan = function(areaList,time) {
+        pomelo.request("admin.adminHandler.setMergePlan", {areaList : areaList,time : time}, function(data) {
+            console.log(data);
+        });
+      }
+      //删除合服计划
+      var delMergePlan = function(time) {
+        pomelo.request("admin.adminHandler.delMergePlan", {time : time}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取合服计划
+      var getMergePlan = function() {
+        pomelo.request("admin.adminHandler.getMergePlan", {}, function(data) {
+            console.log(data);
+        });
+      }
+      var openArea = function() {
+        pomelo.request("admin.adminHandler.openArea", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取服务器信息
+      var getAreaServerInfos = function() {
+        pomelo.request("admin.adminHandler.getAreaServerInfos", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取服务器成员
+      var getAreaPlayers = function(areaId) {
+        pomelo.request("admin.adminHandler.getAreaPlayers", {areaId : areaId}, function(data) {
+            console.log(data);
+        });
+      }
+      //============跨服段位赛============//
+      //匹配战斗
+      var matchGrading = function() {
+        pomelo.request("cross.gradingHandler.matchGrading", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取跨服段位赛数据
+      var getGradingData = function() {
+        pomelo.request("cross.gradingHandler.getGradingData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //使用挑战券
+      var useGradingItem = function() {
+        pomelo.request("cross.gradingHandler.useGradingItem", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取段位奖励
+      var gainGradingAward = function(glv) {
+        pomelo.request("cross.gradingHandler.gainGradingAward", {glv : glv}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取赛季封神榜
+      var getGradingHonor = function(seasonId) {
+        pomelo.request("cross.gradingHandler.getGradingHonor", {seasonId : seasonId}, function(data) {
+            console.log(data);
+        });
+      }
+      //============游历任务==============//
+      //获取游历任务数据
+      var getTourData = function() {
+        pomelo.request("area.tourHandler.getTourData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //元宝刷新游历任务
+      var refreshTourByGold = function() {
+        pomelo.request("area.tourHandler.refreshTourByGold", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //刷新券刷新游历任务
+      var refreshTourByItem = function() {
+        pomelo.request("area.tourHandler.refreshTourByItem", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //进行游历任务
+      var runTour = function(index,hIds) {
+        pomelo.request("area.tourHandler.runTour", {index:index,hIds:hIds}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取游历任务奖励
+      var gainTourAward = function(id) {
+        pomelo.request("area.tourHandler.gainTourAward", {id:id}, function(data) {
+            console.log(data);
+        });
+      }
+      //加速完成游历任务
+      var speedUpTour = function(id) {
+        pomelo.request("area.tourHandler.speedUpTour", {id:id}, function(data) {
+            console.log(data);
+        });
+      }
+      //============逐鹿之战==============//
+      //获取逐鹿之战数据
+      var getZhuluData = function() {
+        pomelo.request("area.zhuluHandler.getZhuluData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //选择格子
+      var chooseGrid = function(choose) {
+        pomelo.request("area.zhuluHandler.chooseGrid", {choose:choose}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取逐鹿战斗数据
+      var getZhuluFightData = function() {
+        pomelo.request("area.zhuluHandler.getZhuluFightData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //执行格子
+      var executeGrid = function(arg) {
+        pomelo.request("area.zhuluHandler.executeGrid", {arg:arg}, function(data) {
+            console.log(data);
+        });
+      }
+      //放弃格子
+      var giveupGrid = function() {
+        pomelo.request("area.zhuluHandler.giveupGrid", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //选择战利品
+      var chooseSpoils = function(index) {
+        pomelo.request("area.zhuluHandler.chooseSpoils", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //开启宝箱
+      var openZhuluBox = function() {
+        pomelo.request("area.zhuluHandler.openZhuluBox", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //设置逐鹿出场阵容
+      var setZhuluTeam = function(hIds) {
+        pomelo.request("area.zhuluHandler.setZhuluTeam", {hIds:hIds}, function(data) {
+            console.log(data);
+        });
+      }
+      //============全服BOSS==============//
+      //获取全服BOSS数据
+      var getAreaBossData = function() {
+        pomelo.request("area.worldBossHandler.getAreaBossData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战全服BOSS
+      var challengeAreaBoss = function() {
+        pomelo.request("area.worldBossHandler.challengeAreaBoss", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //购买全服BOSS挑战次数
+      var buyAreaBossCount = function() {
+        pomelo.request("area.worldBossHandler.buyAreaBossCount", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //购买全服BOSS伤害增加
+      var buyAreaBossUp = function() {
+        pomelo.request("area.worldBossHandler.buyAreaBossUp", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取全服BOSS宝箱奖励
+      var gainAreaBossBox = function(index) {
+        pomelo.request("area.worldBossHandler.gainAreaBossBox", {index:index}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取排行榜
+      var getAreaBossRank = function() {
+        pomelo.request("area.worldBossHandler.getAreaBossRank", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //============世界BOSS==============//
+      //获取世界BOSS数据
+      var getWorldBossData = function() {
+        pomelo.request("area.worldBossHandler.getWorldBossData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战世界BOSS
+      var challengeWorldBoss = function() {
+        pomelo.request("area.worldBossHandler.challengeWorldBoss", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取排行榜
+      var getWorldBossRank = function() {
+        pomelo.request("area.worldBossHandler.getWorldBossRank", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //抢夺玩家
+      var robWorldBossPlayer = function(targetUid) {
+        pomelo.request("area.worldBossHandler.robWorldBossPlayer", {targetUid : targetUid}, function(data) {
+            console.log(data);
+        });
+      }
+      //============集市相关==============//
+      //获取集市数据
+      var getBazaarData = function() {
+        pomelo.request("area.bazaarHandler.getBazaarData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //免费刷新
+      var bazaarRefreshFree = function(type) {
+        pomelo.request("area.bazaarHandler.bazaarRefreshFree", {type : type}, function(data) {
+            console.log(data);
+        });
+      }
+      //付费刷新
+      var bazaarRefreshBuy = function(type) {
+        pomelo.request("area.bazaarHandler.bazaarRefreshBuy", {type : type}, function(data) {
+            console.log(data);
+        });
+      }
+      //购买物品
+      var buyBazzarGoods = function(type,index) {
+        pomelo.request("area.bazaarHandler.buyBazzarGoods", {type : type,index : index}, function(data) {
+            console.log(data);
+        });
+      }
+      //============任务相关==============//
+      //获取任务列表
+      var getTaskList = function() {
+        pomelo.request("area.taskHandler.getTaskList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取任务奖励
+      var finishTask = function(taskId) {
+        pomelo.request("area.taskHandler.finishTask", {taskId : taskId}, function(data) {
+            console.log(data);
+        });
+      }
+      //更新任务进度
+      var taskUpdate = function(type) {
+        pomelo.request("area.taskHandler.taskUpdate", {type : type}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取活跃度数据
+      var getLivenessData = function() {
+        pomelo.request("area.taskHandler.getLivenessData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取活跃度奖励
+      var gainLivenessAward = function(index) {
+        pomelo.request("area.taskHandler.gainLivenessAward", {index : index}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取战令数据
+      var getWarHornData = function() {
+        pomelo.request("area.taskHandler.getWarHornData", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //购买等级
+      var advanceWarHorn = function() {
+        pomelo.request("area.taskHandler.advanceWarHorn", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //购买等级
+      var buyWarHornLv = function(count) {
+        pomelo.request("area.taskHandler.buyWarHornLv", {count : count}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取战令奖励
+      var gainWarHornAward = function(lv,type) {
+        pomelo.request("area.taskHandler.gainWarHornAward", {lv : lv,type : type}, function(data) {
+            console.log(data);
+        });
+      }
+      //============神兵相关==============//
+      //穿戴神兵
+      var wearArtifact = function(hId) {
+        pomelo.request("area.artifactHandler.wearArtifact", {hId : hId}, function(data) {
+            console.log(data);
+        });
+      }
+      //神兵升级
+      var upgradeArtifact = function(hId) {
+        pomelo.request("area.artifactHandler.upgradeArtifact", {hId : hId}, function(data) {
+            console.log(data);
+        });
+      }
+      //出售神兵
+      var sellArtifact = function(aId,count) {
+        pomelo.request("area.artifactHandler.sellArtifact", {aId : aId,count : count}, function(data) {
+            console.log(data);
+        });
+      }
+      //============锦囊相关==============//
+      //穿戴锦囊   aId为锦囊ID   pos为锦囊格子位置   1 - 10
+      var wearAcepack = function(aId,hId,pos) {
+        pomelo.request("area.acepackHandler.wearAcepack", {aId : aId,hId : hId,pos : pos}, function(data) {
+            console.log(data);
+        });
+      }
+      //卸下锦囊
+      var unwearAcepack = function(pos,hId) {
+        pomelo.request("area.acepackHandler.unwearAcepack", {pos : pos,hId : hId}, function(data) {
+            console.log(data);
+        });
+      }
+      //出售锦囊
+      var sellAcepack = function(aId,count) {
+        pomelo.request("area.acepackHandler.sellAcepack", {aId : aId,count : count}, function(data) {
+            console.log(data);
+        });
+      }
+      //合成锦囊  list为材料锦囊   格式为{aId1 : 1,aId2 : 2}类似    总数量为3
+      var compoundAcepack = function(aId,list) {
+        pomelo.request("area.acepackHandler.compoundAcepack", {aId : aId,list : list}, function(data) {
+            console.log(data);
+        });
+      }
+      //============关卡任务相关==============//
+      //获取关卡任务数据
+      var getCTaskInfo = function() {
+        pomelo.request("area.taskHandler.getCTaskInfo", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取关卡任务奖励
+      var getCTaskAward = function(taskId) {
+        pomelo.request("area.taskHandler.getCTaskAward", {taskId : taskId}, function(data) {
+            console.log(data);
+        });
+      }
+      //============装备相关==============//
+      //穿戴装备
+      var wearEquip = function(eId,hId) {
+        pomelo.request("area.equipHandler.wearEquip", {eId : eId,hId : hId}, function(data) {
+            console.log(data);
+        });
+      }
+      //卸下装备
+      var unwearEquip = function(part,hId) {
+        pomelo.request("area.equipHandler.unwearEquip", {part : part,hId : hId}, function(data) {
+            console.log(data);
+        });
+      }
+      //出售装备
+      var sellEquip = function(eId,count) {
+        pomelo.request("area.equipHandler.sellEquip", {eId : eId,count : count}, function(data) {
+            console.log(data);
+        });
+      }
+      //合成装备
+      var compoundEquip = function(eId,count) {
+        pomelo.request("area.equipHandler.compoundEquip", {eId : eId,count : count}, function(data) {
+            console.log(data);
+        });
+      }
+      //============英雄相关==============//
+      var mockFight = function() {
+        pomelo.request("area.fightHandler.mockFight", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //直升六星
+      var upgradeStarSimple = function(hId) {
+        pomelo.request("area.heroHandler.upgradeStarSimple", {hId : hId}, function(data) {
+            console.log(data);
+        });
+      }
+      //英雄重生
+      var resetHero = function(hId) {
+        pomelo.request("area.heroHandler.resetHero", {hId : hId}, function(data) {
+            console.log(data);
+        });
+      }
+      //英雄转化
+      var replaceHero = function(hId) {
+        pomelo.request("area.heroHandler.replaceHero", {hId : hId}, function(data) {
+            console.log(data);
+        });
+      }
+      //保存重置
+      var saveReplace = function() {
+        pomelo.request("area.heroHandler.saveReplace", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //取消重置
+      var cancelReplace = function() {
+        pomelo.request("area.heroHandler.cancelReplace", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //征募英雄
+      var recruitHero = function(type,count) {
+        pomelo.request("area.recruitHandler.recruitHero", {type : type,count : count}, function(data) {
+            console.log(data);
+        });
+      }
+      //英雄升级
+      var upgradeLevel = function(hId,aimLv) {
+        pomelo.request("area.heroHandler.upgradeLevel", {hId : hId,aimLv : aimLv}, function(data) {
+            console.log(data);
+        });
+      }
+      //英雄升阶
+      var upgraAdvance = function(hId) {
+        pomelo.request("area.heroHandler.upgraAdvance", {hId : hId}, function(data) {
+            console.log(data);
+        });
+      }
+      //英雄升星
+      var upgradeStar = function(target,hIds) {
+        pomelo.request("area.heroHandler.upgradeStar", {target : target,hIds : hIds}, function(data) {
+            console.log(data);
+        });
+      }
+      //增加英雄背包栏
+      var addHeroAmount = function() {
+        pomelo.request("area.heroHandler.addHeroAmount", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取英雄背包栏数量
+      var getHeroAmount = function() {
+        pomelo.request("area.heroHandler.getHeroAmount", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获得英雄
+      var gainHero = function(id,ad,lv,star) {
+        pomelo.request("area.heroHandler.gainHero", {id : id,ad : ad,lv : lv,star : star}, function(data) {
+            console.log(data);
+        });
+      }
+      //删除英雄
+      var removeHeros = function(hIds) {
+        pomelo.request("area.heroHandler.removeHeros", {hIds : hIds}, function(data) {
+            console.log(data);
+        });
+      }
+      //修改英雄属性
+      var incrbyHeroInfo = function(hId,name,value) {
+        pomelo.request("area.heroHandler.incrbyHeroInfo", {hId : hId,name : name,value : value}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取英雄列表
+      var getHeros = function() {
+        pomelo.request("area.heroHandler.getHeros", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取英雄图鉴
+      var getHeroArchive = function() {
+        pomelo.request("area.heroHandler.getHeroArchive", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //设置出场阵容
+      var setFightTeam = function(hIds) {
+        pomelo.request("area.heroHandler.setFightTeam", {hIds : hIds}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取出场阵容
+      var getFightTeam = function() {
+        pomelo.request("area.heroHandler.getFightTeam", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //=================================//
+      //绑定身份证
+      var bindIdentity = function(idcard,name) {
+        pomelo.request("connector.identityHandler.bindIdentity", {idcard : idcard,name : name}, function(data) {
+            console.log(data);
+        });
+      }
+      //开启宝箱
+      var getChestAward = function(chestId) {
+        pomelo.request("area.normalHandler.getChestAward", {chestId : chestId}, function(data) {
+            console.log(data);
+        });
+      }
+      //开启宝箱str
+      var openChestStr = function(str) {
+        pomelo.request("area.normalHandler.openChestStr", {str : str}, function(data) {
+            console.log(data);
+        });
+      }
+      //============竞技场玩法==============//
+      //获取排行榜
+      var getRankList = function() {
+        pomelo.request("area.arenaHandler.getRankList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取目标列表
+      var getTargetList = function(cb) {
+        pomelo.request("area.arenaHandler.getTargetList", {}, function(data) {
+            console.log(data);
+            if(cb)
+              cb(data)
+        });
+      }
+      //获取目标阵容
+      var getAreaTeamByUid = function(targetUid,targetRank) {
+        pomelo.request("area.arenaHandler.getAreaTeamByUid", {targetUid : targetUid,targetRank : targetRank}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取我的竞技场数据
+      var getMyArenaInfo = function(cb) {
+        pomelo.request("area.arenaHandler.getMyArenaInfo", {}, function(data) {
+            console.log(data);
+            if(cb)
+              cb(data)
+        });
+      }
+      //获取挑战记录
+      var getRerord = function() {
+        pomelo.request("area.arenaHandler.getRerord", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战目标
+      var challengeArena = function() {
+        getTargetList(function(data) {
+          console.log(data)
+          var targetRank = data.data.rankList[0]
+          var targetName = data.data.userInfos[0]["name"]
+          pomelo.request("area.arenaHandler.challengeArena", {targetName : targetName,targetRank : targetRank}, function(data) {
+              console.log(data);
+          });
+        })
+      }
+      //购买挑战次数
+      var buyArenaCount = function() {
+        pomelo.request("area.arenaHandler.buyArenaCount", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //购买竞技场奖励商城物品
+      var buyArenaShop = function(shopId,count) {
+        pomelo.request("area.arenaHandler.buyArenaShop", {shopId : shopId,count : count}, function(data) {
+            console.log(data);
+        });
+      }
+      //============运镖玩法================//
+      //获取我的押镖信息
+      var getEscortInfo = function() {
+        pomelo.request("cross.escortHandler.getEscortInfo", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取镖车列表
+      var getEscortList = function() {
+        pomelo.request("cross.escortHandler.getEscortList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //刷新镖车
+      var updateEscortCar = function() {
+        pomelo.request("cross.escortHandler.updateEscortCar", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //开始押镖
+      var beginEscort = function() {
+        pomelo.request("cross.escortHandler.beginEscort", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //劫镖
+      var robEscort = function(target) {
+        pomelo.request("cross.escortHandler.robEscort", {target : target}, function(data) {
+            console.log(data);
+        });
+      }
+      //============跨服相关================//
+      //连接跨服服务器
+      var loginCross = function() {
+        pomelo.request("area.normalHandler.loginCross", {}, function(data) {
+            console.log(data);
+        });
+      }
+      var test = function() {
+        pomelo.request("cross.crossHandler.test", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //============通天塔================//
+      //获取通天塔数据
+      var getTTTInfo = function() {
+        pomelo.request("area.tttHandler.getTTTInfo", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战下一关BOSS
+      var challengeTTTBoss = function(readList,verify) {
+        pomelo.request("area.tttHandler.challengeTTTBoss", {readList : readList,verify : verify}, function(data) {
+            console.log(data);
+        });
+      }
+      //扫荡到最高等级
+      var TTTmopup = function(level) {
+        pomelo.request("area.tttHandler.TTTmopup", {level : level}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取通关
+      var getTTTAwards = function() {
+        pomelo.request("area.tttHandler.getTTTAwards", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //============副本================//
+      //开启副本
+      var openFB = function(type) {
+        pomelo.request("area.fbHandler.openFB", {type : type}, function(data) {
+            console.log(data);
+        });
+      }
+      //退出副本
+      var quitFB = function(type) {
+        pomelo.request("area.fbHandler.quitFB", {type : type}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战副本BOSS
+      var challengeFBBoss = function(type,readList,verify) {
+        pomelo.request("area.fbHandler.challengeFBBoss", {type : type,readList : readList,verify : verify}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取副本信息
+      var getFBInfo = function() {
+        pomelo.request("area.fbHandler.getFBInfo", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取日常副本数据
+      var getDailyfbInfo = function() {
+        pomelo.request("area.fbHandler.getDailyfbInfo", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //挑战日常副本
+      var challengeDailyfb = function(fbId,verify) {
+        pomelo.request("area.fbHandler.challengeDailyfb", {fbId : fbId,verify : verify}, function(data) {
+            console.log(data);
+        });
+      }
+      //============神兵================//
+      //神兵激活
+      var artifactActivate = function(aId) {
+        pomelo.request("area.heroHandler.artifactActivate", {aId : aId}, function(data) {
+            console.log(data);
+        });
+      }
+      //神兵进阶
+      var artifactAdvance = function(aId) {
+        pomelo.request("area.heroHandler.artifactAdvance", {aId : aId}, function(data) {
+            console.log(data);
+        });
+      }
+      //神兵升星
+      var artifactStar = function(aId) {
+        pomelo.request("area.heroHandler.artifactStar", {aId : aId}, function(data) {
+            console.log(data);
+        });
+      }
+      //穿戴神兵
+      var dressedArtifact = function(aId) {
+        pomelo.request("area.heroHandler.dressedArtifact", {aId : aId}, function(data) {
+            console.log(data);
+        });
+      }
+      //拆卸神兵
+      var takeofArtifact = function(type) {
+        pomelo.request("area.heroHandler.takeofArtifact", {type : type}, function(data) {
+            console.log(data);
+        });
+      }
+      //============伙伴================//
+      //伙伴升星
+      var partnerUpgradeStar = function(characterId) {
+        pomelo.request("area.partnerHandler.partnerUpgradeStar", {characterId : characterId}, function(data) {
+            console.log(data);
+        });
+      }
+      //激活伙伴
+      var activatePartner = function(characterId) {
+        pomelo.request("area.partnerHandler.activatePartner", {characterId : characterId}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取已获得转生被动技能列表
+      var getLearnPassiveList = function(characterId,samsara) {
+        pomelo.request("area.partnerHandler.getLearnPassiveList", {characterId : characterId,samsara : samsara}, function(data) {
+            console.log(data);
+        });
+      }
+      //重置转生技能
+      var resetLearnPassive = function(characterId,samsara) {
+        pomelo.request("area.partnerHandler.resetLearnPassive", {characterId : characterId,samsara : samsara}, function(data) {
+            console.log(data);
+        });
+      }
+      //学习转生被动技能
+      var learnPassive = function(characterId,samsara,index) {
+        pomelo.request("area.partnerHandler.learnPassive", {characterId : characterId,samsara : samsara,index : index}, function(data) {
+            console.log(data);
+        });
+      }
+      //============宝石================//
+      //获取宝石列表
+      var getGemList = function() {
+        pomelo.request("area.gemHandler.getGemList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //购买宝石
+      var buyGem = function(gId,level,count) {
+        pomelo.request("area.gemHandler.buyGem", {gId : gId,level : level,count : count}, function(data) {
+            console.log(data);
+        });
+      }
+      //出售宝石
+      var sellGem = function(glist) {
+        pomelo.request("area.gemHandler.sellGem", {glist : glist}, function(data) {
+            console.log(data);
+        });
+      }
+      //镶嵌宝石
+      var inlayGem = function(eId,slot,gstr) {
+        pomelo.request("area.gemHandler.inlayGem", {eId : eId,slot : slot,gstr : gstr}, function(data) {
+            console.log(data);
+        });
+      }
+      //卸下宝石
+      var takeofGem = function(eId,slot) {
+        pomelo.request("area.gemHandler.takeofGem", {eId : eId,slot : slot}, function(data) {
+            console.log(data);
+        });
+      }
+      //合成宝石
+      var compoundGem = function(gId,level,glist) {
+        pomelo.request("area.gemHandler.compoundGem", {gId : gId,level : level,glist : glist}, function(data) {
+            console.log(data);
+        });
+      }
+      //============邮件================//
+      //邮件列表
+      var getMailList = function() {
+        pomelo.request("area.mailHandler.getMailList", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //发送邮件
+      var sendMail = function(title,text,atts) {
+        pomelo.request("area.mailHandler.sendMail", {title : title,text : text,atts : atts}, function(data) {
+            console.log(data);
+        });
+      }
+      //领取邮件附件
+      var gainMailAttachment = function(index,id) {
+        pomelo.request("area.mailHandler.gainMailAttachment", {index : index,id : id}, function(data) {
+            console.log(data);
+        });
+      }
+      //阅读邮件
+      var readMail = function(index,id) {
+        pomelo.request("area.mailHandler.readMail", {index : index,id : id}, function(data) {
+            console.log(data);
+        });
+      }
+      //删除邮件
+      var deleteMail = function(index,id) {
+        pomelo.request("area.mailHandler.deleteMail", {index : index,id : id}, function(data) {
+            console.log(data);
+        });
+      }
+      //一键领取
+      var gainAllMailAttachment = function() {
+        pomelo.request("area.mailHandler.gainAllMailAttachment", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //一键删除已读
+      var deleteAllReadMail = function() {
+        pomelo.request("area.mailHandler.deleteAllReadMail", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //=========================================//
+      //获取服务器列表
+      var getAreaList = function(index) {
+        pomelo.request("connector.loginHandler.getAreaList", {index : index}, function(data) {
+            console.log(data);
+        });
+      }
+      //选择服务器
+      var chooseArea = function(areaId) {
+        pomelo.request("connector.loginHandler.chooseArea", {areaId : areaId}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取角色列表
+      var getPlayerList = function(accId) {
+        pomelo.request("connector.loginHandler.getPlayerList", {accId : accId}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取该服务器角色信息
+      var getPlayerInfo = function(areaId) {
+        pomelo.request("connector.loginHandler.getPlayerInfo", {areaId : areaId}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取随机名字
+      var getRandomName = function(sex) {
+        pomelo.request("connector.loginHandler.getRandomName", {sex : sex}, function(data) {
+            console.log(data);
+        });
+      }
+      //注册角色
+      var register = function(areaId,name,sex) {
+        pomelo.request("connector.loginHandler.register", {areaId : areaId,name : name,sex : sex}, function(data) {
+            console.log(data);
+        });
+      }
+      //登录服务器
+      var loginArea = function(areaId) {
+        pomelo.request("connector.loginHandler.loginArea", {areaId : areaId}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取所处服务器
+      var getLocationAreaId = function() {
+        pomelo.request("connector.loginHandler.getLocationAreaId", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //加入聊天室
+      var joinChatRoom = function(roomName) {
+        pomelo.request("chat.chatHandler.joinChatRoom",{roomName : roomName}, function(data) {
+            console.log(data);
+        });
+      }
+      //离开聊天室
+      var leaveChatRoom = function(roomName) {
+        pomelo.request("chat.chatHandler.leaveChatRoom",{roomName : roomName}, function(data) {
+            console.log(data);
+        });
+      }
+      //发送聊天消息
+      var say = function(roomName,gname,type,arg,text) {
+        pomelo.notify("chat.chatHandler.say",{roomName : roomName,gname:gname,type : type,arg : arg,text : text}, function(data) {
+            console.log(data);
+        });
+      }
+      //激活管理员模式
+      var activatePrivileges = function() {
+        pomelo.request("admin.adminHandler.activatePrivileges", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //模糊查找玩家信息
+      var nameMatching = function(name,cursor) {
+        pomelo.request("admin.adminHandler.nameMatching", {name:name,cursor:cursor}, function(data) {
+            console.log(data);
+        });
+      }
+      //冻结角色
+      var freezeUid = function(uid,value) {
+        pomelo.request("admin.adminHandler.freezeUid", {uid:uid,value:value}, function(data) {
+            console.log(data);
+        });
+      }
+      //冻结账号
+      var freezeAcc = function(uid,value) {
+        pomelo.request("admin.adminHandler.freezeAcc", {uid:uid,value:value}, function(data) {
+            console.log(data);
+        });
+      }
+      //发放物品
+      var sendItem = function(target,itemId,value) {
+        pomelo.request("area.adminArea.sendItem", {target : target,itemId : itemId,value : value}, function(data) {
+            console.log(data);
+        })
+      }
+      //改变英雄星级
+      var changeStar = function(hId,value) {
+        pomelo.request("area.adminArea.changeStar", {hId : hId,value : value}, function(data) {
+            console.log(data);
+        })
+      }
+      //改变英雄阶级
+      var changeAdvance = function(hId,value) {
+        pomelo.request("area.adminArea.changeAdvance", {hId : hId,value : value}, function(data) {
+            console.log(data);
+        })
+      }
+      //改变英雄等级
+      var changeLevel = function(hId,value) {
+        pomelo.request("area.adminArea.changeLevel", {hId : hId,value : value}, function(data) {
+            console.log(data);
+        })
+      }
+      //获取聊天室列表
+      var getChatRooms = function() {
+        pomelo.request("chat.adminChat.getChatRooms", {}, function(data) {
+            console.log(data);
+        });
+      }
+      //获取聊天室成员
+      var getMembers = function(roomName) {
+        pomelo.request("chat.adminChat.getMembers", {roomName : roomName}, function(data) {
+            console.log(data);
+        });
+      }
+      //准备战斗
+      var readyFight = function() {
+        pomelo.request("area.fightHandler.readyFight",{}, function(data) {
+            console.log(data);
+        })
+      }
+      //领取章节宝箱
+      var gainChapterAwardBox = function(chapterId) {
+        pomelo.request("area.fightHandler.gainChapterAwardBox",{chapterId : chapterId}, function(data) {
+            console.log(data);
+        })
+      }
+      var challengeCheckpoints = function(seededNum,readList) {
+        pomelo.request("area.fightHandler.challengeCheckpoints",{seededNum : seededNum,readList : readList}, function(data) {
+            console.log(data);
+        })
+      }
+      var getCheckpointsInfo = function() {
+        pomelo.request("area.fightHandler.getCheckpointsInfo",{}, function(data) {
+            console.log(data);
+        })
+      }
+      //otps包含  itemId   value 及使用物品其他参数   如经验丹需characterId
+      var useItem = function(otps) {
+        pomelo.request("area.normalHandler.useItem",otps, function(data) {
+            console.log(data);
+        })
+      }
+      //增加背包物品  测试功能
+      var addItem = function(itemId,value) {
+        pomelo.request("area.normalHandler.addItem",{itemId : itemId,value : value}, function(data) {
+            console.log(data);
+        })
+      }
+      //增加物品str  测试功能
+      var addItemStr = function(str,rate) {
+        pomelo.request("area.normalHandler.addItemStr",{str : str,rate : rate}, function(data) {
+            console.log(data);
+        })
+      }
+      //快速挂机奖励
+      var getQuickOnhookAward = function() {
+        pomelo.request("area.normalHandler.getQuickOnhookAward",{}, function(data) {
+            console.log(data);
+        })
+      }
+      //获取在线挂机奖励
+      var getOnhookAward = function() {
+        pomelo.request("area.normalHandler.getOnhookAward",{}, function(data) {
+            console.log(data);
+        })
+      }
+      //角色进阶
+      var characterAdvanced = function(characterId) {
+        pomelo.request("area.normalHandler.characterAdvanced",{characterId : characterId}, function(data) {
+            console.log(data);
+        })
+      }
+      //宠物进阶
+      var petAdvanced = function(id) {
+        pomelo.request("area.petHandler.petAdvanced",{id : id}, function(data) {
+            console.log(data);
+        })
+      }
+      //角色转生
+      var characterSamsara = function(characterId) {
+        pomelo.request("area.normalHandler.characterSamsara",{characterId : characterId}, function(data) {
+            console.log(data);
+        })
+      }
+      //宠物转生
+      var petSamsara = function(id) {
+        pomelo.request("area.petHandler.petSamsara",{id : id}, function(data) {
+            console.log(data);
+        })
+      }
+      //增加宠物栏
+      var addPetAmount = function() {
+        pomelo.request("area.petHandler.addPetAmount",{}, function(data) {
+            console.log(data);
+        })
+      }
+      //获得宠物
+      var obtainPet = function(characterId) {
+        pomelo.request("area.petHandler.obtainPet",{characterId : characterId}, function(data) {
+            console.log(data);
+        })
+      }
+      //移除宠物
+      var removePet = function(id) {
+        pomelo.request("area.petHandler.removePet",{id : id}, function(data) {
+            console.log(data);
+        })
+      }
+      //设置出战宠物
+      var setFightPet = function(id) {
+        pomelo.request("area.petHandler.setFightPet",{id : id}, function(data) {
+            console.log(data);
+        })
+      }
+      //宠物休息
+      var petRest = function() {
+        pomelo.request("area.petHandler.petRest",{}, function(data) {
+            console.log(data);
+        })
+      }
+      //获取宠物图鉴
+      var getPetArchive = function() {
+        pomelo.request("area.petHandler.getPetArchive",{}, function(data) {
+            console.log(data);
+        })
+      }
+      var variationCount = 0
+      //宠物洗练
+      var washPet = function(id) {
+        pomelo.request("area.petHandler.washPet",{id : id}, function(data) {
+            if(data.data.variation){
+              variationCount++
+              console.log("变异 ",variationCount,data)
+              saveWashPet(id)
+            }
+        })
+      }
+      //保存洗练效果
+      var saveWashPet = function(id) {
+        pomelo.request("area.petHandler.saveWashPet",{id : id}, function(data) {
+            console.log(data);
+        })
+      }
+      //获取商城数据
+      var getShopData = function() {
+        pomelo.request("area.normalHandler.getShopData",{}, function(data) {
+            console.log(data);
+        })
+      }
+      //购买商城物品
+      var buyShop = function(shopId,count) {
+        pomelo.request("area.normalHandler.buyShop",{shopId : shopId,count : count}, function(data) {
+            console.log(data);
+        })
+      }
+      //直接购买物品
+      var buyItem = function(itemId,count) {
+        pomelo.request("area.normalHandler.buyItem",{itemId : itemId,count : count}, function(data) {
+            console.log(data);
+        })
+      }
+    </script>
+  </head>
+  <body>
+    <div class="g-button">
+      登录系统 : 
+      <input id="test" type="button" value="登录账号1" onclick="entry('1001')"/>
+      <input id="test" type="button" value="登录账号2" onclick="entry('1002')"/>
+      <input id="test" type="button" value="登录账号3" onclick="entry('1003')"/>
+      <input id="test" type="button" value="游客账号" onclick="entry(Date.now())"/>
+      <input id="test" type="button" value="渠道账号" onclick="quickEntryAccount()"/>
+      <input id="test" type="button" value="注册角色" onclick="register(1,''+Date.now(),1)"/>
+      <input id="test" type="button" value="登录服务器" onclick="loginArea(1)"/>
+      <input id="test" type="button" value="连接跨服服务器" onclick="loginCross()"/>
+    </div>
+    <div class="g-button">
+      开启数据流 : 
+      <input id="test" type="button" value="开启定时器" onclick="openFlow()"/>
+      <input id="test" type="button" value="设置1倍" onclick="setBasicRate(1)"/>
+      <input id="test" type="button" value="设置2倍" onclick="setBasicRate(2)"/>
+      <input id="test" type="button" value="设置3倍" onclick="setBasicRate(3)"/>
+      <input id="test" type="button" value="设置4倍" onclick="setBasicRate(4)"/>
+      <input id="test" type="button" value="设置5倍" onclick="setBasicRate(5)"/>
+      <input id="test" type="button" value="设置6倍" onclick="setBasicRate(6)"/>
+      <input id="test" type="button" value="设置7倍" onclick="setBasicRate(7)"/>
+      <input id="test" type="button" value="设置8倍" onclick="setBasicRate(8)"/>
+      <input id="test" type="button" value="设置9倍" onclick="setBasicRate(9)"/>
+      <input id="test" type="button" value="设置10倍" onclick="setBasicRate(10)"/>
+      <input id="test" type="button" value="关闭定时器" onclick="closeFlow()"/>
+    </div>
+  </body>
+</html>
