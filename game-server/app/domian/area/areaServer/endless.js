@@ -96,12 +96,6 @@ module.exports = function() {
 						next("第"+curLv+"场战斗失败")
 						return
 					}
-				    if(verifys[i] !== JSON.stringify(self.fightContorl.getFightRecord()[0])){
-				    	self.verifyFaild(uid,verifys[i],JSON.stringify(self.fightContorl.getFightRecord()[0]))
-				    	console.log("无尽试炼 第"+i+"场战斗校验错误")
-				    	next("战斗验证错误")
-				    	return
-				    }
 					var list = self.fightContorl.getFightRecord()
 					var overInfo = list[list.length - 1]
 					if(atkTeam[1])
@@ -199,15 +193,6 @@ module.exports = function() {
 					var curLv = i+1
 					defTeam = self.standardTeam(null,endless_one[id]["team_"+curLv],"main",endless_one[id]["level"])
 					var winFlag = self.fightContorl.beginFight(atkTeam,defTeam,{seededNum : seededList[i]})
-					if(!winFlag){
-						next("第"+curLv+"场战斗失败")
-						return
-					}
-				    if(verifys[i] !== JSON.stringify(self.fightContorl.getFightRecord()[0])){
-				    	self.verifyFaild(uid,verifys[i],JSON.stringify(self.fightContorl.getFightRecord()[0]))
-				    	next("战斗验证错误")
-				    	return
-				    }
 					// console.log("第"+curLv+"场",atkTeam[1])
 					var list = self.fightContorl.getFightRecord()
 					var overInfo = list[list.length - 1]

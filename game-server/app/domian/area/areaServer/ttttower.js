@@ -73,25 +73,16 @@ module.exports = function() {
 			    var mon_list = ttttower_level[level]["defTeam"]
 			    var defTeam = self.standardTeam(uid,mon_list,"ttt_main",ttttower_level[level]["lv"])
 			   	var winFlag = self.fightContorl.beginFight(atkTeam,defTeam,{seededNum : seededNum})
-			    if(verify !== JSON.stringify(self.fightContorl.getFightRecord()[0])){
-			    	self.verifyFaild(uid,verify,JSON.stringify(self.fightContorl.getFightRecord()[0]))
-			    	next({"text":"战斗验证错误"})
-			    	return
-			    }
 			    self.taskUpdate(uid,"ttt",1)
-			   	if(winFlag){
-			   		self.incrbyObj(uid,main_name,"level",1)
-			   		self.taskUpdate(uid,"tttLv",1)
-			   		self.updateSprintRank("ttt_rank",uid,1)
-			   		self.chageLordData(uid,"ttt_lv",level)
-			   		var awardList = []
-			   		if(ttttower_level[level]["awards"])
-						awardList = awardList.concat(self.addItemStr(uid,ttttower_level[level]["awards"],1,"通天塔"+level))
-					awardList = awardList.concat(self.addItemStr(uid,ttttower_level[level]["mopupAward"],1,"通天塔"+level))
-					cb(true,awardList)
-			   	}else{
-			   		cb(false)
-			   	}
+		   		self.incrbyObj(uid,main_name,"level",1)
+		   		self.taskUpdate(uid,"tttLv",1)
+		   		self.updateSprintRank("ttt_rank",uid,1)
+		   		self.chageLordData(uid,"ttt_lv",level)
+		   		var awardList = []
+		   		if(ttttower_level[level]["awards"])
+					awardList = awardList.concat(self.addItemStr(uid,ttttower_level[level]["awards"],1,"通天塔"+level))
+				awardList = awardList.concat(self.addItemStr(uid,ttttower_level[level]["mopupAward"],1,"通天塔"+level))
+				cb(true,awardList)
 			}
 		],function(err) {
 				cb(false,err)
@@ -198,24 +189,15 @@ module.exports = function() {
 			    var mon_list = ttttower_realm[level]["defTeam"]
 			    var defTeam = self.standardTeam(uid,mon_list,"ttt_realm",ttttower_realm[level]["lv"])
 			   	var winFlag = self.fightContorl.beginFight(atkTeam,defTeam,{seededNum : seededNum})
-			    if(verify !== JSON.stringify(self.fightContorl.getFightRecord()[0])){
-			    	self.verifyFaild(uid,verify,JSON.stringify(self.fightContorl.getFightRecord()[0]))
-			    	next({"text":"战斗验证错误"})
-			    	return
-			    }
-			   	if(winFlag){
-			   		self.incrbyObj(uid,main_name,"realm_level_"+realm,1)
-			   		self.incrbyObj(uid,main_name,"realm_count_"+realm,1)
-			   		self.addZset("ttt_realm"+realm,uid,level)
-			   		self.taskUpdate(uid,"tttRealmLv",1,realm)
-			   		var awardList = []
-			   		if(ttttower_realm[level]["awards_"+realm])
-						awardList = awardList.concat(self.addItemStr(uid,ttttower_realm[level]["awards_"+realm],1,"阵营塔"+level))
-					awardList = awardList.concat(self.addItemStr(uid,ttttower_realm[level]["mopupAward_"+realm],1,"阵营塔"+level))
-					cb(true,awardList)
-			   	}else{
-			   		cb(false)
-			   	}
+		   		self.incrbyObj(uid,main_name,"realm_level_"+realm,1)
+		   		self.incrbyObj(uid,main_name,"realm_count_"+realm,1)
+		   		self.addZset("ttt_realm"+realm,uid,level)
+		   		self.taskUpdate(uid,"tttRealmLv",1,realm)
+		   		var awardList = []
+		   		if(ttttower_realm[level]["awards_"+realm])
+					awardList = awardList.concat(self.addItemStr(uid,ttttower_realm[level]["awards_"+realm],1,"阵营塔"+level))
+				awardList = awardList.concat(self.addItemStr(uid,ttttower_realm[level]["mopupAward_"+realm],1,"阵营塔"+level))
+				cb(true,awardList)
 			}
 		],function(err) {
 				cb(false,err)
