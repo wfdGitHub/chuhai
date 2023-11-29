@@ -93,6 +93,23 @@ serverManager.prototype.createListen = function(port) {
 	server.use(xmlparser());
 	server.listen(port);
 }
+serverManager.prototype.createListen = function(port) {
+	var self = this
+	var server = express()
+	server.use(express.json());
+	server.use(express.urlencoded());
+	server.use((req, res, next) => {
+	res.header('Access-Control-Allow-Origin', '*')
+	res.header('Access-Control-Allow-Headers', 'Authorization,X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method' )
+	res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PATCH, PUT, DELETE')
+	res.header('Allow', 'GET, POST, PATCH, OPTIONS, PUT, DELETE')
+		next();
+	});
+	serverDB.init(server,self)
+	adminManager.init(server,self)
+	server.use(xmlparser());
+	server.listen(port);
+}
 serverManager.prototype.quick_order = function(data,cb) {
 	var v_sign = util.md5(data.nt_data+data.sign+Md5_Key)
 	if(v_sign != data.md5Sign){
