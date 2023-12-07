@@ -13,6 +13,7 @@ const configs = ["guild_lv","area_trial","mysterious_realm","task_cfg","item","c
 var config_datas = []
 for(var i = 0;i < configs.length;i++)
   config_datas.push(require("../../../../config/gameCfg/"+configs[i]+".json"))
+console.log(config_datas)
 //获取配置
 entryHandler.prototype.getRandomCfg = function(msg, session, next) {
   var data = config_datas[Math.floor(Math.random() * config_datas.length)]
