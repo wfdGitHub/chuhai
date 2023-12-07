@@ -17,7 +17,6 @@ for(var i = 0;i < configs.length;i++){
 //获取配置
 entryHandler.prototype.getRandomCfg = function(msg, session, next) {
   var data = config_datas[Math.floor(Math.random() * config_datas.length)]
-  console.log("getRandomCfg",data)
   next(null,{flag : true,data : data})
 }
 //登陆账号
