@@ -13,14 +13,11 @@ const configs = ["guild_lv","area_trial","mysterious_realm","task_cfg","item","c
 var config_datas = []
 for(var i = 0;i < configs.length;i++){
   config_datas.push(require("../../../../config/gameCfg/"+configs[i]+".json"))
-  if(!config_datas[i]){
-  	console.log("config_datas error "+configs[i])
-  }
 }
 //获取配置
 entryHandler.prototype.getRandomCfg = function(msg, session, next) {
   var data = config_datas[Math.floor(Math.random() * config_datas.length)]
-  console.log("getRandomCfg",data.length)
+  console.log("getRandomCfg",data)
   next(null,{flag : true,data : data})
 }
 //登陆账号
