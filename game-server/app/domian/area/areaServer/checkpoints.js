@@ -135,7 +135,7 @@ module.exports = function() {
 	this.getQuickOnhookAward = function(uid,cb) {
 		var level = 0
 		var count = 0
-		var maxCount = 4 + VIP[self.players[uid]["vip"]]["quick"]
+		var maxCount = 4
 		var quick_pri = self.getLordAtt(uid,"quick_pri") || 0
 		if(quick_pri > Date.now())
 			maxCount += activity_cfg["quick_buy"]["value"]
